@@ -76,7 +76,7 @@ export default function MemoryDetail({ memory, onBack }: MemoryDetailProps) {
             <span className="text-lg font-handwritten">{formatDate(memory.date)}</span>
           </div>
           
-          <p className="text-lg leading-relaxed font-serif text-foreground/90">
+          <p className="text-lg leading-relaxed font-mono text-foreground/90">
             {memory.description}
           </p>
         </div>

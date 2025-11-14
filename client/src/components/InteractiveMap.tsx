@@ -32,7 +32,7 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/outdoors-v12',
-      center: [0, 20],
+      center: [174, -41],
       zoom: 2,
       projection: 'globe' as any,
     });
@@ -128,7 +128,7 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
                   {selectedMemory.city}, {selectedMemory.country}
                 </p>
               </div>
-              <p className="text-card-foreground/80 text-sm line-clamp-2">
+              <p className="text-card-foreground/80 text-sm line-clamp-2 font-mono">
                 {selectedMemory.description}
               </p>
               <Button 
