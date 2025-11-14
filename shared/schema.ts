@@ -1,18 +1,24 @@
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+export const memorySchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  country: z.string(),
+  city: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  date: z.string(),
+  description: z.string(),
+  photoFiles: z.array(z.string()),
+  videoFiles: z.array(z.string()).optional(),
+  audioFiles: z.array(z.string()).optional(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export type Memory = z.infer<typeof memorySchema>;
+
+export const accessCodeSchema = z.object({
+  code: z.string().min(1, "Access code is required"),
+  rememberDevice: z.boolean().optional(),
 });
 
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
+export type AccessCodeForm = z.infer<typeof accessCodeSchema>;
