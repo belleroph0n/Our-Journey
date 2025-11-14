@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -7,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { MapPin } from "lucide-react";
 
 interface AuthPageProps {
-  onAuthenticate: (rememberDevice: boolean) => void;
+  onAuthenticate: () => void;
 }
 
 export default function AuthPage({ onAuthenticate }: AuthPageProps) {
@@ -15,14 +17,27 @@ export default function AuthPage({ onAuthenticate }: AuthPageProps) {
   const [rememberDevice, setRememberDevice] = useState(false);
   const [error, setError] = useState("");
 
+  const loginMutation = useMutation({
+    mutationFn: async (data: { code: string; rememberDevice: boolean }) => {
+      const res = await apiRequest('POST', '/api/auth/login', data);
+      return res.json();
+    },
+    onSuccess: () => {
+      onAuthenticate();
+    },
+    onError: (error: any) => {
+      setError(error.message || 'Invalid access code');
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!accessCode.trim()) {
       setError("Please enter an access code");
       return;
     }
-    console.log("Access code submitted:", accessCode);
-    onAuthenticate(rememberDevice);
+    setError("");
+    loginMutation.mutate({ code: accessCode, rememberDevice });
   };
 
   return (
@@ -81,9 +96,10 @@ export default function AuthPage({ onAuthenticate }: AuthPageProps) {
               type="submit"
               className="w-full"
               size="lg"
+              disabled={loginMutation.isPending}
               data-testid="button-submit"
             >
-              Begin Our Journey
+              {loginMutation.isPending ? 'Verifying...' : 'Begin Our Journey'}
             </Button>
           </form>
         </CardContent>

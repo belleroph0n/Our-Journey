@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -9,9 +10,35 @@ import { Memory } from '@shared/schema';
 
 export default function Admin() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [memoriesFile, setMemoriesFile] = useState<File | null>(null);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  // Check authentication status on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/status');
+        const data = await response.json();
+        if (!data.success || !data.isAuthenticated) {
+          toast({
+            title: 'Authentication required',
+            description: 'Please log in to access the admin panel',
+            variant: 'destructive',
+          });
+          setLocation('/');
+        }
+      } catch (error) {
+        console.error('Error checking auth status:', error);
+        setLocation('/');
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+    checkAuth();
+  }, [setLocation, toast]);
 
   // Fetch current memories
   const { data: memoriesData } = useQuery<{ success: boolean; memories: Memory[] }>({
@@ -28,10 +55,16 @@ export default function Admin() {
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append('file', file);
-      return apiRequest('/api/upload/memories', {
+      const res = await fetch('/api/upload/memories', {
         method: 'POST',
         body: formData,
+        credentials: 'include',
       });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Upload failed');
+      }
+      return res.json();
     },
     onSuccess: () => {
       toast({
@@ -57,10 +90,16 @@ export default function Admin() {
       files.forEach(file => {
         formData.append('files', file);
       });
-      return apiRequest('/api/upload/media', {
+      const res = await fetch('/api/upload/media', {
         method: 'POST',
         body: formData,
+        credentials: 'include',
       });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Upload failed');
+      }
+      return res.json();
     },
     onSuccess: () => {
       toast({
@@ -82,9 +121,8 @@ export default function Admin() {
   // Delete media file mutation
   const deleteMedia = useMutation({
     mutationFn: async (filename: string) => {
-      return apiRequest(`/api/media/${filename}`, {
-        method: 'DELETE',
-      });
+      const res = await apiRequest('DELETE', `/api/media/${filename}`);
+      return res.json();
     },
     onSuccess: () => {
       toast({
@@ -147,6 +185,17 @@ export default function Admin() {
     }
     return <FileSpreadsheet className="w-5 h-5 text-muted-foreground" />;
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-lg font-handwritten text-muted-foreground">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">

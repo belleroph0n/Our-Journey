@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import multer from "multer";
 import path from "path";
@@ -22,9 +22,63 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
 });
 
+// Access code from environment variable (required)
+const ACCESS_CODE = process.env.ACCESS_CODE;
+if (!ACCESS_CODE) {
+  throw new Error('ACCESS_CODE environment variable is required');
+}
+
+// Middleware to check authentication
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (req.session.isAuthenticated) {
+    next();
+  } else {
+    res.status(401).json({ success: false, error: 'Not authenticated' });
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Upload memories Excel/CSV file
-  app.post("/api/upload/memories", upload.single('file'), async (req, res) => {
+  // Authentication routes
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { code, rememberDevice } = req.body;
+
+      if (code === ACCESS_CODE) {
+        req.session.isAuthenticated = true;
+        if (rememberDevice) {
+          req.session.cookie.maxAge = 365 * 24 * 60 * 60 * 1000; // 1 year
+        }
+        res.json({ success: true, message: 'Authentication successful' });
+      } else {
+        res.status(401).json({ success: false, error: 'Invalid access code' });
+      }
+    } catch (error: any) {
+      console.error("Error during login:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Authentication failed' 
+      });
+    }
+  });
+
+  app.post("/api/auth/logout", async (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        res.status(500).json({ success: false, error: 'Logout failed' });
+      } else {
+        res.json({ success: true, message: 'Logout successful' });
+      }
+    });
+  });
+
+  app.get("/api/auth/status", async (req, res) => {
+    res.json({ 
+      success: true, 
+      isAuthenticated: !!req.session.isAuthenticated 
+    });
+  });
+  // Upload memories Excel/CSV file (requires authentication)
+  app.post("/api/upload/memories", requireAuth, upload.single('file'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ success: false, error: 'No file uploaded' });
@@ -54,8 +108,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Upload media files
-  app.post("/api/upload/media", upload.array('files', 50), async (req, res) => {
+  // Upload media files (requires authentication)
+  app.post("/api/upload/media", requireAuth, upload.array('files', 50), async (req, res) => {
     try {
       const files = req.files as Express.Multer.File[];
       if (!files || files.length === 0) {
@@ -81,8 +135,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all memories
-  app.get("/api/memories", async (req, res) => {
+  // Get all memories (requires authentication)
+  app.get("/api/memories", requireAuth, async (req, res) => {
     try {
       const memoriesPath = getMemoriesFilePath();
       if (!memoriesPath) {
@@ -100,8 +154,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get media file
-  app.get("/api/media/:filename", async (req, res) => {
+  // Get media file (requires authentication)
+  app.get("/api/media/:filename", requireAuth, async (req, res) => {
     try {
       const { filename } = req.params;
       const filePath = getMediaFilePath(filename);
@@ -135,8 +189,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // List all media files
-  app.get("/api/media", async (req, res) => {
+  // List all media files (requires authentication)
+  app.get("/api/media", requireAuth, async (req, res) => {
     try {
       const files = listMediaFiles();
       res.json({ success: true, files });
@@ -149,8 +203,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Delete media file
-  app.delete("/api/media/:filename", async (req, res) => {
+  // Delete media file (requires authentication)
+  app.delete("/api/media/:filename", requireAuth, async (req, res) => {
     try {
       const { filename } = req.params;
       const deleted = deleteMediaFile(filename);
