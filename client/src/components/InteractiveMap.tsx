@@ -165,7 +165,7 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
             {/* Close button */}
             <button
               onClick={handleCloseCard}
-              className="absolute -top-3 right-3 z-20 transition-opacity hover:opacity-100"
+              className="absolute top-3 right-3 z-20 transition-opacity hover:opacity-100"
               data-testid="button-close-memory-card"
               aria-label="Close memory card"
             >
