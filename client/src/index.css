@@ -46,7 +46,7 @@
   --font-sans: Inter, sans-serif;
   --font-serif: "Crimson Text", serif;
   --font-handwritten: "Caveat", cursive;
-  --font-mono: Menlo, monospace;
+  --font-mono: "Courier New", Courier, monospace;
   --radius: .5rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(30 8% 12% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(30 8% 12% / 0.00);
