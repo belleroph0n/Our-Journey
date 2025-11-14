@@ -96,7 +96,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ success: false, error: 'No file uploaded' });
       }
 
-      saveMemoriesFile(req.file.buffer);
+      saveMemoriesFile(req.file.buffer, req.file.originalname);
       
       // Parse the file to validate it
       const memoriesPath = getMemoriesFilePath();

@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
-const MEMORIES_FILE = path.join(UPLOAD_DIR, 'memories.csv');
 const MEDIA_DIR = path.join(UPLOAD_DIR, 'media');
 
 // Ensure directories exist
@@ -15,12 +14,35 @@ export function initializeStorage() {
   }
 }
 
-export function saveMemoriesFile(fileBuffer: Buffer) {
-  fs.writeFileSync(MEMORIES_FILE, fileBuffer);
+export function saveMemoriesFile(fileBuffer: Buffer, originalFilename: string) {
+  // Clear any existing memories files first
+  const files = fs.readdirSync(UPLOAD_DIR);
+  files.forEach(file => {
+    if (file.startsWith('memories.')) {
+      fs.unlinkSync(path.join(UPLOAD_DIR, file));
+    }
+  });
+
+  // Get the file extension from original filename
+  const ext = path.extname(originalFilename);
+  const memoriesFile = path.join(UPLOAD_DIR, `memories${ext}`);
+  fs.writeFileSync(memoriesFile, fileBuffer);
 }
 
-export function getMemoriesFilePath() {
-  return fs.existsSync(MEMORIES_FILE) ? MEMORIES_FILE : null;
+export function getMemoriesFilePath(): string | null {
+  if (!fs.existsSync(UPLOAD_DIR)) {
+    return null;
+  }
+  
+  // Look for any file starting with 'memories.'
+  const files = fs.readdirSync(UPLOAD_DIR);
+  const memoriesFile = files.find(file => file.startsWith('memories.'));
+  
+  if (memoriesFile) {
+    return path.join(UPLOAD_DIR, memoriesFile);
+  }
+  
+  return null;
 }
 
 export function saveMediaFile(filename: string, fileBuffer: Buffer) {
