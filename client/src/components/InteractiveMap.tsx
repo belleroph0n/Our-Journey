@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Memory } from '@shared/schema';
 import { Button } from '@/components/ui/button';
-import { Home, MapPin } from 'lucide-react';
+import { Home, MapPin, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface InteractiveMapProps {
@@ -17,6 +17,10 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartY = useRef(0);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -90,6 +94,34 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
     }
   };
 
+  const handleCloseCard = () => {
+    setSelectedMemory(null);
+    setSwipeOffset(0);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - touchStartY.current;
+    if (diff > 0) {
+      setSwipeOffset(diff);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    if (swipeOffset > 100) {
+      handleCloseCard();
+    } else {
+      setSwipeOffset(0);
+    }
+  };
+
   return (
     <div className="relative w-full h-screen">
       <div ref={mapContainer} className="w-full h-full" />
@@ -114,8 +146,31 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
 
       {/* Memory preview card */}
       {selectedMemory && (
-        <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10 w-full max-w-sm px-4">
-          <div className="bg-card rounded-xl shadow-2xl overflow-hidden border border-card-border">
+        <div 
+          className="absolute top-8 left-1/2 -translate-x-1/2 z-10 w-full max-w-sm px-4"
+          style={{
+            transform: `translate(-50%, ${swipeOffset}px)`,
+            opacity: 1 - (swipeOffset / 300),
+            transition: isDragging ? 'none' : 'transform 0.3s ease, opacity 0.3s ease',
+          }}
+        >
+          <div 
+            ref={cardRef}
+            className="bg-card rounded-xl shadow-2xl overflow-visible border border-card-border relative"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            {/* Close button */}
+            <button
+              onClick={handleCloseCard}
+              className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm hover-elevate active-elevate-2 flex items-center justify-center border border-border transition-colors"
+              data-testid="button-close-memory-card"
+              aria-label="Close memory card"
+            >
+              <X className="w-4 h-4 text-foreground" />
+            </button>
+
             <div className="h-48 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
               <MapPin className="w-16 h-16 text-primary" />
             </div>
