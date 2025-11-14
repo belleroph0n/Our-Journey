@@ -97,8 +97,12 @@ export default function MemoryDetail({ memory, onBack }: MemoryDetailProps) {
                   }}
                 >
                   <div className="bg-card p-4 rounded-md shadow-lg hover-elevate active-elevate-2 transition-transform">
-                    <div className="aspect-square bg-gradient-to-br from-primary/10 to-secondary/10 rounded-sm flex items-center justify-center">
-                      <MapPin className="w-12 h-12 text-muted-foreground" />
+                    <div className="aspect-square rounded-sm overflow-hidden">
+                      <img
+                        src={`/api/media/${photo}`}
+                        alt={`Memory photo ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <p className="mt-3 text-sm text-center font-handwritten text-muted-foreground">
                       Photo {index + 1}
@@ -118,13 +122,16 @@ export default function MemoryDetail({ memory, onBack }: MemoryDetailProps) {
               {memory.videoFiles.map((video, index) => (
                 <div
                   key={video}
-                  className="aspect-video bg-card rounded-xl overflow-hidden shadow-lg hover-elevate cursor-pointer"
-                  onClick={() => console.log('Play video:', video)}
+                  className="aspect-video bg-card rounded-xl overflow-hidden shadow-lg"
                   data-testid={`video-${index}`}
                 >
-                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                    <Play className="w-16 h-16 text-primary" />
-                  </div>
+                  <video
+                    src={`/api/media/${video}`}
+                    controls
+                    className="w-full h-full"
+                  >
+                    Your browser does not support the video tag.
+                  </video>
                 </div>
               ))}
             </div>
@@ -139,31 +146,17 @@ export default function MemoryDetail({ memory, onBack }: MemoryDetailProps) {
               {memory.audioFiles.map((audio, index) => (
                 <div
                   key={audio}
-                  className="bg-card p-6 rounded-xl shadow-md hover-elevate"
+                  className="bg-card p-6 rounded-xl shadow-md"
                 >
-                  <div className="flex items-center gap-4">
-                    <Button
-                      size="icon"
-                      variant={playingAudio === audio ? "default" : "outline"}
-                      onClick={() => handleAudioToggle(audio)}
-                      data-testid={`button-audio-${index}`}
-                    >
-                      {playingAudio === audio ? (
-                        <Pause className="w-5 h-5" />
-                      ) : (
-                        <Play className="w-5 h-5" />
-                      )}
-                    </Button>
-                    <div className="flex-1">
-                      <p className="font-handwritten text-lg">Audio {index + 1}</p>
-                      <div className="h-2 bg-muted rounded-full mt-2 overflow-hidden">
-                        <div 
-                          className="h-full bg-primary transition-all duration-300"
-                          style={{ width: playingAudio === audio ? '45%' : '0%' }}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <p className="font-handwritten text-lg mb-4">Audio {index + 1}</p>
+                  <audio
+                    src={`/api/media/${audio}`}
+                    controls
+                    className="w-full"
+                    data-testid={`audio-${index}`}
+                  >
+                    Your browser does not support the audio tag.
+                  </audio>
                 </div>
               ))}
             </div>
@@ -173,10 +166,14 @@ export default function MemoryDetail({ memory, onBack }: MemoryDetailProps) {
 
       {/* Image lightbox */}
       <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-        <DialogContent className="max-w-4xl">
-          <div className="aspect-video bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center">
-            <MapPin className="w-24 h-24 text-muted-foreground" />
-          </div>
+        <DialogContent className="max-w-4xl p-0">
+          {selectedImage && (
+            <img
+              src={`/api/media/${selectedImage}`}
+              alt="Full size memory"
+              className="w-full h-auto rounded-lg"
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
