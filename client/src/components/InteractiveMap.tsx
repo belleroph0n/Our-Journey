@@ -147,8 +147,9 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
       {/* Memory preview card */}
       {selectedMemory && (
         <div 
-          className="absolute top-8 left-1/2 -translate-x-1/2 z-10 w-full max-w-sm px-4"
+          className="absolute top-8 z-10 w-full max-w-sm px-4"
           style={{
+            left: '50%',
             transform: `translate(-50%, ${swipeOffset}px)`,
             opacity: 1 - (swipeOffset / 300),
             transition: isDragging ? 'none' : 'transform 0.3s ease, opacity 0.3s ease',
@@ -164,11 +165,11 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
             {/* Close button */}
             <button
               onClick={handleCloseCard}
-              className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm hover-elevate active-elevate-2 flex items-center justify-center border border-border transition-colors"
+              className="absolute -top-3 right-3 z-20 transition-opacity hover:opacity-100"
               data-testid="button-close-memory-card"
               aria-label="Close memory card"
             >
-              <X className="w-4 h-4 text-foreground" />
+              <X className="w-5 h-5 text-muted-foreground/30" />
             </button>
 
             <div className="h-48 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
