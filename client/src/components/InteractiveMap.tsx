@@ -11,8 +11,7 @@ interface InteractiveMapProps {
   onHomeClick?: () => void;
 }
 
-// TODO: remove mock functionality - this is placeholder for Mapbox token
-const MAPBOX_TOKEN = 'pk.eyJ1IjoiZXhhbXBsZSIsImEiOiJjbGV4YW1wbGUifQ.example';
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || '';
 
 export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }: InteractiveMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -21,6 +20,11 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
 
   useEffect(() => {
     if (!mapContainer.current) return;
+
+    if (!MAPBOX_TOKEN) {
+      console.error('VITE_MAPBOX_TOKEN is not set. Please add your Mapbox token to the secrets.');
+      return;
+    }
 
     // Initialize map
     mapboxgl.accessToken = MAPBOX_TOKEN;
