@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import * as Papa from 'papaparse';
+import Papa from 'papaparse';
 import fs from 'fs';
 import { Memory } from '@shared/schema';
 

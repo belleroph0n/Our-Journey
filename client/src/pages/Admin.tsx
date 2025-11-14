@@ -217,6 +217,22 @@ export default function Admin() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="bg-muted/50 rounded-md p-4 space-y-2">
+              <p className="text-sm font-medium">Need a template?</p>
+              <p className="text-sm text-muted-foreground">
+                Download our Excel template with sample data and the exact column format needed.
+              </p>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => window.open('/api/download/template', '_blank')}
+                data-testid="button-download-template"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Download Template
+              </Button>
+            </div>
+
             <div>
               <input
                 type="file"

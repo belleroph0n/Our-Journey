@@ -77,6 +77,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       isAuthenticated: !!req.session.isAuthenticated 
     });
   });
+
+  // Download Excel template
+  app.get("/api/download/template", (req, res) => {
+    const templatePath = path.join(process.cwd(), 'server', 'public', 'Our_Journey_Template.xlsx');
+    res.download(templatePath, 'Our_Journey_Template.xlsx', (err) => {
+      if (err) {
+        console.error("Error downloading template:", err);
+        res.status(404).json({ success: false, error: 'Template file not found' });
+      }
+    });
+  });
+
   // Upload memories Excel/CSV file (requires authentication)
   app.post("/api/upload/memories", requireAuth, upload.single('file'), async (req, res) => {
     try {
