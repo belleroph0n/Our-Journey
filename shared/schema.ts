@@ -9,6 +9,7 @@ export const memorySchema = z.object({
   longitude: z.number(),
   date: z.string(),
   description: z.string(),
+  tags: z.array(z.string()).optional(),
   photoFiles: z.array(z.string()),
   videoFiles: z.array(z.string()).optional(),
   audioFiles: z.array(z.string()).optional(),

@@ -43,6 +43,7 @@ function convertRowToMemory(row: any): Memory {
   const photoFiles = row.photo_files || row.photoFiles || row.photos || '';
   const videoFiles = row.video_files || row.videoFiles || row.videos || '';
   const audioFiles = row.audio_files || row.audioFiles || row.audio || '';
+  const tags = row.tags || '';
 
   return {
     id: row.id?.toString() || '',
@@ -53,6 +54,7 @@ function convertRowToMemory(row: any): Memory {
     longitude: parseFloat(row.longitude) || 0,
     date: row.date || '',
     description: row.description || '',
+    tags: tags ? tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [],
     photoFiles: photoFiles ? photoFiles.split(',').map((f: string) => f.trim()).filter(Boolean) : [],
     videoFiles: videoFiles ? videoFiles.split(',').map((f: string) => f.trim()).filter(Boolean) : [],
     audioFiles: audioFiles ? audioFiles.split(',').map((f: string) => f.trim()).filter(Boolean) : [],
