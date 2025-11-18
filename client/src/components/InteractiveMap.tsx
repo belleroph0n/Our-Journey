@@ -57,18 +57,34 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
     memories.forEach((memory) => {
       const el = document.createElement('div');
       el.className = 'memory-marker';
-      el.style.width = '32px';
-      el.style.height = '32px';
+      el.style.width = '44px';
+      el.style.height = '44px';
       el.style.cursor = 'pointer';
-      el.innerHTML = `
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" 
-                fill="hsl(345, 70%, 55%)" 
-                stroke="white" 
-                stroke-width="2"/>
-          <circle cx="12" cy="9" r="2.5" fill="white"/>
-        </svg>
-      `;
+      el.style.display = 'flex';
+      el.style.alignItems = 'center';
+      el.style.justifyContent = 'center';
+      el.style.borderRadius = '50%';
+      el.style.backgroundColor = 'hsl(345, 70%, 55%)';
+      el.style.border = '3px solid white';
+      el.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.2)';
+      el.style.transition = 'transform 0.2s ease';
+      
+      const img = document.createElement('img');
+      img.src = new URL('@assets/Untitled design (1)_1763443679229.png', import.meta.url).href;
+      img.style.width = '24px';
+      img.style.height = '24px';
+      img.style.objectFit = 'contain';
+      img.style.filter = 'brightness(0) invert(1)';
+      
+      el.appendChild(img);
+
+      el.addEventListener('mouseenter', () => {
+        el.style.transform = 'scale(1.1)';
+      });
+      
+      el.addEventListener('mouseleave', () => {
+        el.style.transform = 'scale(1)';
+      });
 
       el.addEventListener('click', () => {
         setSelectedMemory(memory);
