@@ -178,7 +178,7 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
                 alt="Memory location" 
                 className="w-16 h-16"
                 style={{
-                  filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%)'
+                  filter: 'invert(49%) sepia(73%) saturate(4862%) hue-rotate(316deg) brightness(101%) contrast(101%)'
                 }}
               />
             </div>
@@ -195,7 +195,8 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
                 {selectedMemory.description}
               </p>
               <Button 
-                className="w-full" 
+                className="w-full"
+                style={{ backgroundColor: '#FF327F' }}
                 onClick={handleExploreMemory}
                 data-testid="button-explore-memory"
               >
