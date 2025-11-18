@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { MapPin } from "lucide-react";
+import customMarkerIcon from '@assets/Untitled design (1)_1763443679229.png';
 
 interface AuthPageProps {
   onAuthenticate: () => void;
@@ -47,9 +47,14 @@ export default function AuthPage({ onAuthenticate }: AuthPageProps) {
       <Card className="w-full max-w-md relative z-10 shadow-xl">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <MapPin className="w-8 h-8 text-primary" />
-            </div>
+            <img 
+              src={customMarkerIcon} 
+              alt="Our Journey" 
+              className="w-16 h-16"
+              style={{
+                filter: 'invert(49%) sepia(73%) saturate(4862%) hue-rotate(316deg) brightness(101%) contrast(101%)'
+              }}
+            />
           </div>
           <CardTitle className="text-4xl font-handwritten">Welcome to Our Journey</CardTitle>
           <CardDescription className="text-base">
@@ -96,6 +101,7 @@ export default function AuthPage({ onAuthenticate }: AuthPageProps) {
               type="submit"
               className="w-full"
               size="lg"
+              style={{ backgroundColor: '#FF327F' }}
               disabled={loginMutation.isPending}
               data-testid="button-submit"
             >
