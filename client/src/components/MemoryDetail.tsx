@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Memory } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Calendar, MapPin, Play, Pause } from 'lucide-react';
+import { ArrowLeft, Calendar, Play, Pause } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import customMarkerIcon from '@assets/Untitled design (1)_1763443679229.png';
 
 interface MemoryDetailProps {
   memory: Memory;
@@ -55,13 +56,27 @@ export default function MemoryDetail({ memory, onBack }: MemoryDetailProps) {
       {/* Hero image */}
       <div className="relative h-96 bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20">
         <div className="absolute inset-0 flex items-center justify-center">
-          <MapPin className="w-32 h-32 text-primary/30" />
+          <img 
+            src={customMarkerIcon} 
+            alt="Memory location" 
+            className="w-32 h-32 opacity-30"
+            style={{
+              filter: 'invert(49%) sepia(73%) saturate(4862%) hue-rotate(316deg) brightness(101%) contrast(101%)'
+            }}
+          />
         </div>
         
         {/* Location badge */}
         <div className="absolute top-6 right-6">
           <Badge variant="secondary" className="px-4 py-2 shadow-lg">
-            <MapPin className="w-4 h-4 mr-2" />
+            <img 
+              src={customMarkerIcon} 
+              alt="" 
+              className="w-4 h-4 mr-2 inline-block"
+              style={{
+                filter: 'invert(49%) sepia(73%) saturate(4862%) hue-rotate(316deg) brightness(101%) contrast(101%)'
+              }}
+            />
             {memory.city}, {memory.country}
           </Badge>
         </div>
