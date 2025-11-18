@@ -57,24 +57,15 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
     memories.forEach((memory) => {
       const el = document.createElement('div');
       el.className = 'memory-marker';
-      el.style.width = '44px';
-      el.style.height = '44px';
       el.style.cursor = 'pointer';
-      el.style.display = 'flex';
-      el.style.alignItems = 'center';
-      el.style.justifyContent = 'center';
-      el.style.borderRadius = '50%';
-      el.style.backgroundColor = 'hsl(345, 70%, 55%)';
-      el.style.border = '3px solid white';
-      el.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.2)';
       el.style.transition = 'transform 0.2s ease';
       
       const img = document.createElement('img');
       img.src = new URL('@assets/Untitled design (1)_1763443679229.png', import.meta.url).href;
-      img.style.width = '24px';
-      img.style.height = '24px';
+      img.style.width = '44px';
+      img.style.height = '44px';
       img.style.objectFit = 'contain';
-      img.style.filter = 'brightness(0) invert(1)';
+      img.style.filter = 'drop-shadow(0 0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
       
       el.appendChild(img);
 
