@@ -57,34 +57,24 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
     memories.forEach((memory) => {
       const el = document.createElement('div');
       el.className = 'memory-marker';
+      el.style.width = '44px';
+      el.style.height = '44px';
       el.style.cursor = 'pointer';
-      el.style.position = 'relative';
-      
-      const img = document.createElement('img');
-      img.src = new URL('@assets/Untitled design (1)_1763443679229.png', import.meta.url).href;
-      img.style.width = '44px';
-      img.style.height = '44px';
-      img.style.objectFit = 'contain';
-      img.style.filter = 'brightness(0) saturate(100%) invert(45%) sepia(85%) saturate(1500%) hue-rotate(320deg) brightness(95%) contrast(90%) drop-shadow(0 0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
-      img.style.transition = 'transform 0.2s ease';
-      img.style.transformOrigin = 'center bottom';
-      
-      el.appendChild(img);
-
-      el.addEventListener('mouseenter', () => {
-        img.style.transform = 'scale(1.1)';
-      });
-      
-      el.addEventListener('mouseleave', () => {
-        img.style.transform = 'scale(1)';
-      });
+      el.style.backgroundImage = `url("${new URL('@assets/Untitled design (1)_1763443679229.png', import.meta.url).href}")`;
+      el.style.backgroundSize = 'contain';
+      el.style.backgroundRepeat = 'no-repeat';
+      el.style.backgroundPosition = 'center';
+      el.style.filter = 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%) drop-shadow(0 0 1px white) drop-shadow(0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
 
       el.addEventListener('click', () => {
         setSelectedMemory(memory);
       });
 
       if (map.current) {
-        new mapboxgl.Marker(el)
+        new mapboxgl.Marker({
+          element: el,
+          anchor: 'bottom'
+        })
           .setLngLat([memory.longitude, memory.latitude])
           .addTo(map.current);
       }
