@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Memory } from '@shared/schema';
 import { Button } from '@/components/ui/button';
-import { Home, MapPin, X } from 'lucide-react';
+import { Home, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import customMarkerIcon from '@assets/Untitled design (1)_1763443679229.png';
 
 interface InteractiveMapProps {
   memories: Memory[];
@@ -172,7 +173,14 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
             </button>
 
             <div className="h-48 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-              <MapPin className="w-16 h-16 text-primary" />
+              <img 
+                src={customMarkerIcon} 
+                alt="Memory location" 
+                className="w-16 h-16"
+                style={{
+                  filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%)'
+                }}
+              />
             </div>
             <div className="p-6 space-y-4">
               <div>
