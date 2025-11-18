@@ -58,23 +58,25 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
       const el = document.createElement('div');
       el.className = 'memory-marker';
       el.style.cursor = 'pointer';
-      el.style.transition = 'transform 0.2s ease';
+      el.style.position = 'relative';
       
       const img = document.createElement('img');
       img.src = new URL('@assets/Untitled design (1)_1763443679229.png', import.meta.url).href;
       img.style.width = '44px';
       img.style.height = '44px';
       img.style.objectFit = 'contain';
-      img.style.filter = 'drop-shadow(0 0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
+      img.style.filter = 'brightness(0) saturate(100%) invert(45%) sepia(85%) saturate(1500%) hue-rotate(320deg) brightness(95%) contrast(90%) drop-shadow(0 0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
+      img.style.transition = 'transform 0.2s ease';
+      img.style.transformOrigin = 'center bottom';
       
       el.appendChild(img);
 
       el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.1)';
+        img.style.transform = 'scale(1.1)';
       });
       
       el.addEventListener('mouseleave', () => {
-        el.style.transform = 'scale(1)';
+        img.style.transform = 'scale(1)';
       });
 
       el.addEventListener('click', () => {
