@@ -10,11 +10,12 @@ interface InteractiveMapProps {
   memories: Memory[];
   onMemorySelect: (memory: Memory) => void;
   onHomeClick?: () => void;
+  onBack?: () => void;
 }
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || '';
 
-export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }: InteractiveMapProps) {
+export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, onBack }: InteractiveMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
@@ -128,11 +129,11 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick }
       
       {/* Floating controls */}
       <div className="absolute bottom-8 left-8 flex flex-col gap-4 z-10">
-        {onHomeClick && (
+        {(onHomeClick || onBack) && (
           <Button
             size="icon"
             className="rounded-full shadow-lg"
-            onClick={onHomeClick}
+            onClick={onBack || onHomeClick}
             data-testid="button-home"
           >
             <Home className="w-5 h-5" />

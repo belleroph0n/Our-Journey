@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import AuthPage from '@/components/AuthPage';
+import LandingPage from '@/components/LandingPage';
 import InteractiveMap from '@/components/InteractiveMap';
 import MemoryDetail from '@/components/MemoryDetail';
+import FilteredMemoriesPage from '@/components/FilteredMemoriesPage';
 import { Memory } from '@shared/schema';
 
-type ViewState = 'auth' | 'map' | 'detail';
+type ViewState = 'auth' | 'landing' | 'map' | 'filtered' | 'detail';
 
 export default function Home() {
   const [viewState, setViewState] = useState<ViewState>('auth');
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
+  const [filteredMemories, setFilteredMemories] = useState<Memory[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
@@ -21,7 +25,7 @@ export default function Home() {
         const data = await response.json();
         if (data.success && data.isAuthenticated) {
           setIsAuthenticated(true);
-          setViewState('map');
+          setViewState('landing');
         }
       } catch (error) {
         console.error('Error checking auth status:', error);
@@ -42,7 +46,22 @@ export default function Home() {
 
   const handleAuthenticate = () => {
     setIsAuthenticated(true);
-    setViewState('map');
+    setViewState('landing');
+  };
+
+  const handleCategorySelect = (category: string, filtered: Memory[]) => {
+    setSelectedCategory(category);
+    setFilteredMemories(filtered);
+    if (category === 'travel') {
+      setViewState('map');
+    } else {
+      setViewState('filtered');
+    }
+  };
+
+  const handleRandomMemory = (memory: Memory) => {
+    setSelectedMemory(memory);
+    setViewState('detail');
   };
 
   const handleMemorySelect = (memory: Memory) => {
@@ -51,10 +70,18 @@ export default function Home() {
     setViewState('detail');
   };
 
-  const handleBackToMap = () => {
-    console.log('Navigating back to map');
+  const handleBackToLanding = () => {
+    console.log('Navigating back to landing');
     setSelectedMemory(null);
-    setViewState('map');
+    setFilteredMemories([]);
+    setSelectedCategory('');
+    setViewState('landing');
+  };
+
+  const handleBackToFiltered = () => {
+    console.log('Navigating back to filtered view');
+    setSelectedMemory(null);
+    setViewState('filtered');
   };
 
   if (isCheckingAuth) {
@@ -72,7 +99,7 @@ export default function Home() {
     return <AuthPage onAuthenticate={handleAuthenticate} />;
   }
 
-  if (viewState === 'map') {
+  if (viewState === 'landing') {
     if (isLoading) {
       return (
         <div className="flex items-center justify-center min-h-screen bg-background">
@@ -85,18 +112,45 @@ export default function Home() {
     }
 
     return (
-      <InteractiveMap
+      <LandingPage
         memories={memories}
+        onCategorySelect={handleCategorySelect}
+        onRandomMemory={handleRandomMemory}
+      />
+    );
+  }
+
+  if (viewState === 'map') {
+    const memoriesToShow = selectedCategory === 'travel' ? filteredMemories : memories;
+    return (
+      <InteractiveMap
+        memories={memoriesToShow.length > 0 ? memoriesToShow : memories}
         onMemorySelect={handleMemorySelect}
+        onBack={handleBackToLanding}
+      />
+    );
+  }
+
+  if (viewState === 'filtered' && filteredMemories.length > 0) {
+    return (
+      <FilteredMemoriesPage
+        memories={filteredMemories}
+        category={selectedCategory}
+        onMemorySelect={handleMemorySelect}
+        onBack={handleBackToLanding}
       />
     );
   }
 
   if (viewState === 'detail' && selectedMemory) {
+    const backHandler = selectedCategory && selectedCategory !== 'travel' && selectedCategory !== 'random'
+      ? handleBackToFiltered
+      : handleBackToLanding;
+    
     return (
       <MemoryDetail
         memory={selectedMemory}
-        onBack={handleBackToMap}
+        onBack={backHandler}
       />
     );
   }
