@@ -131,7 +131,7 @@ export default function Home() {
     );
   }
 
-  if (viewState === 'filtered' && filteredMemories.length > 0) {
+  if (viewState === 'filtered') {
     return (
       <FilteredMemoriesPage
         memories={filteredMemories}
