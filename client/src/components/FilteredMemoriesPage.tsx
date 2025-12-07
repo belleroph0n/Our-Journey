@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, MapPin } from 'lucide-react';
+import { Home, Calendar, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Memory } from '@shared/schema';
@@ -36,23 +36,26 @@ export default function FilteredMemoriesPage({
   const description = categoryDescriptions[category] || 'Our shared experiences';
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Fixed Home Button - Upper Left */}
+      <div className="fixed top-4 left-4 z-20">
+        <Button
+          size="icon"
+          className="rounded-full shadow-lg"
+          style={{ backgroundColor: '#FF327F' }}
+          onClick={onBack}
+          data-testid="button-home-to-landing"
+        >
+          <Home className="w-5 h-5 text-white" />
+        </Button>
+      </div>
+
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onBack}
-            data-testid="button-back-to-landing"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-handwritten" style={{ color: '#FF327F' }}>
-              {title}
-            </h1>
-            <p className="text-sm text-muted-foreground font-mono">{description}</p>
-          </div>
+        <div className="max-w-4xl mx-auto px-4 py-4 pl-16">
+          <h1 className="text-2xl font-handwritten" style={{ color: '#FF327F' }}>
+            {title}
+          </h1>
+          <p className="text-sm text-muted-foreground font-mono">{description}</p>
         </div>
       </div>
 

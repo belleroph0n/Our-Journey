@@ -127,19 +127,23 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
     <div className="relative w-full h-screen">
       <div ref={mapContainer} className="w-full h-full" />
       
-      {/* Floating controls */}
-      <div className="absolute bottom-8 left-8 flex flex-col gap-4 z-10">
-        {(onHomeClick || onBack) && (
+      {/* Home Button - Upper Left */}
+      {(onHomeClick || onBack) && (
+        <div className="absolute top-4 left-4 z-10">
           <Button
             size="icon"
             className="rounded-full shadow-lg"
+            style={{ backgroundColor: '#FF327F' }}
             onClick={onBack || onHomeClick}
             data-testid="button-home"
           >
-            <Home className="w-5 h-5" />
+            <Home className="w-5 h-5 text-white" />
           </Button>
-        )}
-        
+        </div>
+      )}
+
+      {/* Memory count badge - Bottom Left */}
+      <div className="absolute bottom-8 left-8 z-10">
         <Badge variant="secondary" className="px-4 py-2 text-sm font-handwritten shadow-lg">
           {memories.length} memories to explore
         </Badge>

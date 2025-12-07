@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Memory } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Calendar, Play, Pause } from 'lucide-react';
+import { Home, Calendar, Play, Pause } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import customMarkerIcon from '@assets/Untitled design (1)_1763443679229.png';
 
@@ -35,21 +35,24 @@ export default function MemoryDetail({ memory, onBack }: MemoryDetailProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header with back button */}
+    <div className="min-h-screen bg-background relative">
+      {/* Fixed Home Button - Upper Left */}
+      <div className="fixed top-4 left-4 z-30">
+        <Button
+          size="icon"
+          className="rounded-full shadow-lg"
+          style={{ backgroundColor: '#FF327F' }}
+          onClick={onBack}
+          data-testid="button-home"
+        >
+          <Home className="w-5 h-5 text-white" />
+        </Button>
+      </div>
+
+      {/* Header */}
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onBack}
-            data-testid="button-back"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-2xl font-handwritten">{memory.title}</h1>
-          </div>
+        <div className="max-w-6xl mx-auto px-4 py-4 pl-16">
+          <h1 className="text-2xl font-handwritten">{memory.title}</h1>
         </div>
       </div>
 
