@@ -2,9 +2,53 @@ import { useState } from 'react';
 import { Memory } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Home, Calendar, Play, Pause } from 'lucide-react';
+import { Home, Calendar, ImageOff } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import customMarkerIcon from '@assets/Untitled design (1)_1763443679229.png';
+
+function MediaImage({ src, alt, className, onClick }: { src: string; alt: string; className?: string; onClick?: () => void }) {
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  const filename = src.split('/').pop() || '';
+  const isHeic = filename.toLowerCase().endsWith('.heic') || filename.toLowerCase().endsWith('.heif');
+  
+  if (hasError || isHeic) {
+    return (
+      <div 
+        className={`flex flex-col items-center justify-center bg-muted/50 ${className}`}
+        onClick={onClick}
+      >
+        <ImageOff className="w-12 h-12 text-muted-foreground mb-2" />
+        <p className="text-xs text-muted-foreground text-center px-2">
+          {isHeic ? 'HEIC format not supported by browser' : 'Image unavailable'}
+        </p>
+        <p className="text-xs text-muted-foreground/70 mt-1">{filename}</p>
+      </div>
+    );
+  }
+  
+  return (
+    <>
+      {isLoading && (
+        <div className={`flex items-center justify-center bg-muted/30 ${className}`}>
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+      <img
+        src={src}
+        alt={alt}
+        className={`${className} ${isLoading ? 'hidden' : ''}`}
+        onClick={onClick}
+        onLoad={() => setIsLoading(false)}
+        onError={() => {
+          setIsLoading(false);
+          setHasError(true);
+        }}
+      />
+    </>
+  );
+}
 
 interface MemoryDetailProps {
   memory: Memory;
@@ -116,7 +160,7 @@ export default function MemoryDetail({ memory, onBack }: MemoryDetailProps) {
                 >
                   <div className="bg-card p-4 rounded-md shadow-lg hover-elevate active-elevate-2 transition-transform">
                     <div className="aspect-square rounded-sm overflow-hidden">
-                      <img
+                      <MediaImage
                         src={`/api/media/${photo}`}
                         alt={`Memory photo ${index + 1}`}
                         className="w-full h-full object-cover"

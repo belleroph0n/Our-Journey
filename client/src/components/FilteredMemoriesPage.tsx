@@ -96,11 +96,14 @@ export default function FilteredMemoriesPage({
                   data-testid={`card-memory-${memory.id}`}
                 >
                   {memory.photoFiles && memory.photoFiles.length > 0 && (
-                    <div className="aspect-video relative overflow-hidden">
+                    <div className="aspect-video relative overflow-hidden bg-muted">
                       <img
-                        src={`/uploads/${memory.photoFiles[0]}`}
+                        src={`/api/media/${memory.photoFiles[0]}`}
                         alt={memory.title}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     </div>

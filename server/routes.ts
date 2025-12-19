@@ -19,7 +19,10 @@ initializeStorage();
 // Configure multer for file uploads
 const upload = multer({ 
   storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
+  limits: { 
+    fileSize: 500 * 1024 * 1024, // 500MB limit per file
+    files: 100 // Up to 100 files at once
+  }
 });
 
 // Access code from environment variable (required)
