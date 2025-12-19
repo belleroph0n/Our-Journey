@@ -2,6 +2,8 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import multer from "multer";
 import path from "path";
+import sharp from "sharp";
+import heicConvert from "heic-convert";
 import { 
   initializeStorage, 
   saveMemoriesFile, 
@@ -12,6 +14,22 @@ import {
   deleteMediaFile 
 } from "./file-storage";
 import { parseMemoriesFile } from "./memory-parser";
+
+// Convert HEIC buffer to JPEG buffer
+async function convertHeicToJpeg(buffer: Buffer): Promise<Buffer> {
+  try {
+    const outputBuffer = await heicConvert({
+      buffer: buffer,
+      format: 'JPEG',
+      quality: 0.9
+    });
+    return Buffer.from(outputBuffer);
+  } catch (error) {
+    console.error('HEIC conversion failed, trying sharp:', error);
+    // Fallback to sharp if heic-convert fails
+    return sharp(buffer).jpeg({ quality: 90 }).toBuffer();
+  }
+}
 
 // Initialize storage on startup
 initializeStorage();
@@ -124,17 +142,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Upload media files (requires authentication)
-  app.post("/api/upload/media", requireAuth, upload.array('files', 50), async (req, res) => {
+  app.post("/api/upload/media", requireAuth, upload.array('files', 100), async (req, res) => {
     try {
       const files = req.files as Express.Multer.File[];
       if (!files || files.length === 0) {
         return res.status(400).json({ success: false, error: 'No files uploaded' });
       }
 
-      const uploadedFiles = files.map(file => {
-        saveMediaFile(file.originalname, file.buffer);
-        return file.originalname;
-      });
+      const uploadedFiles: string[] = [];
+      
+      for (const file of files) {
+        const ext = path.extname(file.originalname).toLowerCase();
+        
+        // Convert HEIC/HEIF files to JPEG
+        if (ext === '.heic' || ext === '.heif') {
+          try {
+            console.log(`Converting ${file.originalname} from HEIC to JPEG...`);
+            const jpegBuffer = await convertHeicToJpeg(file.buffer);
+            const newFilename = file.originalname.replace(/\.(heic|heif)$/i, '.jpg');
+            saveMediaFile(newFilename, jpegBuffer);
+            uploadedFiles.push(newFilename);
+            console.log(`Successfully converted ${file.originalname} to ${newFilename}`);
+          } catch (convError) {
+            console.error(`Failed to convert ${file.originalname}:`, convError);
+            // Save original if conversion fails
+            saveMediaFile(file.originalname, file.buffer);
+            uploadedFiles.push(file.originalname);
+          }
+        } else {
+          saveMediaFile(file.originalname, file.buffer);
+          uploadedFiles.push(file.originalname);
+        }
+      }
 
       res.json({ 
         success: true, 
@@ -173,14 +212,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/media/:filename", requireAuth, async (req, res) => {
     try {
       const { filename } = req.params;
-      const filePath = getMediaFilePath(filename);
+      let filePath = getMediaFilePath(filename);
+
+      // If HEIC/HEIF file not found, try the converted JPG version
+      let actualFilename = filename;
+      if (!filePath) {
+        const reqExt = path.extname(filename).toLowerCase();
+        if (reqExt === '.heic' || reqExt === '.heif') {
+          const jpgFilename = filename.replace(/\.(heic|heif)$/i, '.jpg');
+          filePath = getMediaFilePath(jpgFilename);
+          if (filePath) {
+            actualFilename = jpgFilename;
+          }
+        }
+      }
 
       if (!filePath) {
         return res.status(404).json({ success: false, error: 'File not found' });
       }
 
-      // Determine content type
-      const ext = path.extname(filename).toLowerCase();
+      // Determine content type based on actual file being served
+      const ext = path.extname(actualFilename).toLowerCase();
       const contentTypes: Record<string, string> = {
         '.jpg': 'image/jpeg',
         '.jpeg': 'image/jpeg',

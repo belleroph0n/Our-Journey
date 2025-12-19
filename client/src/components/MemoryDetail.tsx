@@ -11,18 +11,15 @@ function MediaImage({ src, alt, className, onClick }: { src: string; alt: string
   const [isLoading, setIsLoading] = useState(true);
   
   const filename = src.split('/').pop() || '';
-  const isHeic = filename.toLowerCase().endsWith('.heic') || filename.toLowerCase().endsWith('.heif');
   
-  if (hasError || isHeic) {
+  if (hasError) {
     return (
       <div 
         className={`flex flex-col items-center justify-center bg-muted/50 ${className}`}
         onClick={onClick}
       >
         <ImageOff className="w-12 h-12 text-muted-foreground mb-2" />
-        <p className="text-xs text-muted-foreground text-center px-2">
-          {isHeic ? 'HEIC format not supported by browser' : 'Image unavailable'}
-        </p>
+        <p className="text-xs text-muted-foreground text-center px-2">Image unavailable</p>
         <p className="text-xs text-muted-foreground/70 mt-1">{filename}</p>
       </div>
     );
