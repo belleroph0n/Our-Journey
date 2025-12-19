@@ -184,10 +184,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         '.png': 'image/png',
         '.gif': 'image/gif',
         '.webp': 'image/webp',
+        '.heic': 'image/heic',
+        '.heif': 'image/heif',
         '.mp4': 'video/mp4',
         '.mov': 'video/quicktime',
+        '.avi': 'video/x-msvideo',
+        '.webm': 'video/webm',
         '.mp3': 'audio/mpeg',
         '.wav': 'audio/wav',
+        '.m4a': 'audio/mp4',
+        '.aac': 'audio/aac',
       };
 
       res.setHeader('Content-Type', contentTypes[ext] || 'application/octet-stream');
