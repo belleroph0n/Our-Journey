@@ -251,97 +251,48 @@ export default function LandingPage({ memories, onCategorySelect, onRandomMemory
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-5xl md:text-6xl font-handwritten mb-8 md:mb-12 text-center"
+        className="text-4xl sm:text-5xl md:text-6xl font-handwritten mb-6 sm:mb-8 text-center"
         style={{ color: '#FF327F' }}
       >
         Our Journey
       </motion.h1>
 
-      {/* Desktop: Circle Layout */}
-      <div className="hidden md:block relative w-[500px] h-[500px]">
-        {categories.map((category, index) => {
-          const angle = (index * 60 - 90) * (Math.PI / 180);
-          const radius = 180;
-          const x = Math.cos(angle) * radius;
-          const y = Math.sin(angle) * radius;
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="mb-6 sm:mb-8 text-muted-foreground text-center font-mono text-sm max-w-md px-4"
+      >
+        Choose a category to explore our memories together
+      </motion.p>
 
-          return (
+      {/* Responsive Grid Layout - Works on all screen sizes */}
+      <div className="w-full max-w-2xl px-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+          {categories.map((category, index) => (
             <motion.button
               key={category.id}
-              initial={{ opacity: 0, scale: 0 }}
+              initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.1 }}
+              transition={{ delay: index * 0.08 }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleCategoryClick(category)}
               disabled={isLoading}
-              className="absolute w-32 h-32 rounded-full bg-card border-2 border-border shadow-lg flex flex-col items-center justify-center gap-2 hover-elevate cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                left: `calc(50% + ${x}px - 64px)`,
-                top: `calc(50% + ${y}px - 64px)`,
-              }}
+              className="aspect-square rounded-2xl bg-card border-2 border-border shadow-lg flex flex-col items-center justify-center gap-2 sm:gap-3 hover-elevate cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed p-4"
               data-testid={`button-category-${category.id}`}
             >
               <img
                 src={category.image}
                 alt={category.label}
-                className="w-16 h-16 object-contain"
+                className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 object-contain"
                 style={{ filter: 'grayscale(100%)' }}
               />
-              <span className="text-sm font-handwritten text-foreground/80">{category.label}</span>
-            </motion.button>
-          );
-        })}
-        
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-24 h-24 rounded-full border-2 border-dashed border-border/50" />
-        </div>
-      </div>
-
-      {/* Mobile: Carousel Layout */}
-      <div className="md:hidden w-full max-w-sm">
-        <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 px-4 scrollbar-hide">
-          {categories.map((category, index) => (
-            <motion.button
-              key={category.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => handleCategoryClick(category)}
-              disabled={isLoading}
-              className="flex-shrink-0 snap-center w-36 h-44 rounded-2xl bg-card border-2 border-border shadow-lg flex flex-col items-center justify-center gap-3 active-elevate-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              data-testid={`button-category-mobile-${category.id}`}
-            >
-              <img
-                src={category.image}
-                alt={category.label}
-                className="w-20 h-20 object-contain"
-                style={{ filter: 'grayscale(100%)' }}
-              />
-              <span className="text-base font-handwritten text-foreground/80">{category.label}</span>
+              <span className="text-sm sm:text-base font-handwritten text-foreground/80">{category.label}</span>
             </motion.button>
           ))}
         </div>
-        
-        <div className="flex justify-center gap-2 mt-4">
-          {categories.map((_, index) => (
-            <div
-              key={index}
-              className="w-2 h-2 rounded-full bg-foreground/20"
-            />
-          ))}
-        </div>
       </div>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-8 text-muted-foreground text-center font-mono text-sm max-w-md"
-      >
-        Choose a category to explore our memories together
-      </motion.p>
     </div>
   );
 }
