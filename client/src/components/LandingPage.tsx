@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Memory } from '@shared/schema';
 
-import jukeboxImage from '@assets/generated_images/hand-drawn_jukebox_sketch.png';
+import jukeboxImage from '@assets/generated_images/jukebox_sketch_without_notes.png';
 import familyImage from '@assets/generated_images/hand-drawn_family_frame_sketch.png';
 import globeImage from '@assets/generated_images/hand-drawn_desk_globe_sketch.png';
 import mealImage from '@assets/generated_images/hand-drawn_meal_plate_sketch.png';
@@ -285,10 +285,10 @@ export default function LandingPage({ memories, onCategorySelect, onRandomMemory
               <img
                 src={category.image}
                 alt={category.label}
-                className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 object-contain"
+                className="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain"
                 style={{ filter: 'grayscale(100%)' }}
               />
-              <span className="text-sm sm:text-base font-handwritten text-foreground/80">{category.label}</span>
+              <span className="text-base sm:text-lg md:text-xl font-handwritten text-foreground/80">{category.label}</span>
             </motion.button>
           ))}
         </div>
