@@ -37,17 +37,18 @@ Preferred communication style: Simple, everyday language.
 
 **Authentication Model**: Simple access code-based authentication (no traditional user accounts). The ACCESS_CODE is stored as an environment variable and checked on login. Protected routes use a requireAuth middleware.
 
-**File Upload System**: Multer for handling multipart form data with in-memory storage (50MB file size limit). Files are processed and saved to local filesystem directories (`uploads/` for memory data files, `uploads/media/` for photos/videos/audio).
-
-**File Parsing**: Supports Excel (.xlsx, .xls) and CSV file formats for memory data. Uses XLSX library for Excel parsing and PapaParse for CSV parsing. The memory parser converts spreadsheet rows into standardized Memory objects with flexible column name mapping.
+**File Parsing**: Supports Excel (.xlsx, .xls), CSV, and Google Sheets for memory data. Uses XLSX library for Excel parsing and PapaParse for CSV parsing. The memory parser converts spreadsheet rows into standardized Memory objects with flexible column name mapping.
 
 ### Data Storage Solutions
 
-**Primary Storage**: File-based storage system (no database currently used). Memory data is stored as uploaded Excel/CSV files, and media files are stored in the filesystem.
+**Primary Storage**: Google Drive is the primary storage backend. All memories and media files are read directly from a configured Google Drive folder using the Google Drive API v3 with service account authentication.
+
+**Storage Priority Chain**: 
+1. Google Drive (primary) - requires GOOGLE_DRIVE_FOLDER_ID and GOOGLE_SERVICE_ACCOUNT_KEY secrets
+2. Replit Object Storage (fallback) - for legacy deployments
+3. Local filesystem (development fallback)
 
 **Memory Data Structure**: Each memory contains: id, title, country, city, latitude, longitude, date, description, tags (array), photoFiles (array), videoFiles (array), audioFiles (array).
-
-**In-Memory Storage Stub**: A MemStorage class exists in `server/storage.ts` for potential user management but is not actively used in the current implementation.
 
 **Schema Validation**: Zod schemas define the shape of Memory objects and form inputs, ensuring type safety across the stack.
 
@@ -55,10 +56,9 @@ Preferred communication style: Simple, everyday language.
 
 **Mapbox GL JS**: Interactive map and 3D globe visualization (v3.0.1). Requires VITE_MAPBOX_TOKEN environment variable. Provides custom styling, globe projection, fog effects, and marker management.
 
-**Google Drive Integration**: Optional integration for accessing files from Google Drive. Uses googleapis library with OAuth2 authentication through Replit Connectors. The integration fetches access tokens dynamically and creates uncachable Drive clients to handle token expiration.
+**Google Drive Integration**: Primary storage integration using Google Drive API v3. Uses service account authentication (not OAuth) with drive.readonly scope. The service account JSON credentials are stored in GOOGLE_SERVICE_ACCOUNT_KEY secret. Supports direct file streaming, Google Sheets export to xlsx, and automatic file discovery.
 
 **Replit-Specific Integrations**:
-- Replit Connectors for Google Drive OAuth
 - Vite plugins for runtime error overlay, development banner, and cartographer (development only)
 
 **UI Component Libraries**:

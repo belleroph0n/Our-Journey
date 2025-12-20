@@ -75,6 +75,52 @@ export async function downloadFile(fileId: string): Promise<Buffer> {
   return Buffer.from(response.data as ArrayBuffer);
 }
 
+// Export Google Sheet as xlsx buffer
+export async function exportGoogleSheetAsXlsx(fileId: string): Promise<Buffer> {
+  const drive = getDriveClient();
+
+  const response = await drive.files.export(
+    { 
+      fileId, 
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    },
+    { responseType: 'arraybuffer' }
+  );
+
+  return Buffer.from(response.data as ArrayBuffer);
+}
+
+// Download memories file (handles both regular files and Google Sheets)
+export async function downloadMemoriesFile(): Promise<{ buffer: Buffer; filename: string } | null> {
+  const file = await findMemoriesFile();
+  if (!file) return null;
+
+  // If it's a Google Sheet, export it as xlsx
+  if (file.mimeType === 'application/vnd.google-apps.spreadsheet') {
+    const buffer = await exportGoogleSheetAsXlsx(file.id);
+    return { buffer, filename: file.name + '.xlsx' };
+  }
+
+  // Otherwise download directly
+  const buffer = await downloadFile(file.id);
+  return { buffer, filename: file.name };
+}
+
+// Get file metadata and size
+export async function getFileMetadata(fileId: string): Promise<{ size: number; mimeType: string }> {
+  const drive = getDriveClient();
+  
+  const response = await drive.files.get({
+    fileId,
+    fields: 'size, mimeType'
+  });
+  
+  return {
+    size: parseInt(response.data.size || '0', 10),
+    mimeType: response.data.mimeType || 'application/octet-stream'
+  };
+}
+
 // Stream file content (for large files like videos)
 export async function streamFile(fileId: string): Promise<NodeJS.ReadableStream> {
   const drive = getDriveClient();

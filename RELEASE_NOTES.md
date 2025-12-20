@@ -1,5 +1,60 @@
 # Our Journey - Release Notes
 
+## Version 1.3.0 - Google Drive Integration
+**Release Date:** 20 December 2025
+
+---
+
+### Overview
+
+This update migrates the storage backend from Replit Object Storage to Google Drive, allowing you to manage all memories and media files directly from your own Google Drive folder.
+
+---
+
+### New Features
+
+#### Google Drive as Primary Storage
+- **Direct Drive Access**: All memories and media files are now read directly from your Google Drive folder
+- **Service Account Authentication**: Secure server-side access using Google Cloud service account credentials
+- **Automatic File Discovery**: The app automatically finds your spreadsheet (xlsx, xls, csv, or Google Sheets) and media files
+- **Google Sheets Support**: Native support for Google Sheets - automatically exported to xlsx format for parsing
+
+#### Simplified Admin Panel
+- **Read-Only Dashboard**: View memories and media synced from Google Drive
+- **Connection Status**: Real-time Google Drive connection status and file counts
+- **Refresh Button**: One-click sync to pull latest changes from Drive
+- **File Management Guidance**: Clear instructions for managing files directly in Google Drive
+
+#### Media Streaming
+- **Direct Streaming**: Photos, videos, and audio stream directly from Google Drive
+- **Efficient Caching**: Long cache headers (1 year) for optimal performance
+- **Format Support**: All existing formats supported (JPEG, PNG, MP4, MOV, MP3, etc.)
+
+---
+
+### Breaking Changes
+- **Upload Functionality Removed**: Files are no longer uploaded through the Admin panel
+- **File Management in Drive**: All file additions, edits, and deletions happen in Google Drive
+
+---
+
+### Configuration Required
+Two secrets must be configured:
+- `GOOGLE_DRIVE_FOLDER_ID`: The ID of your Google Drive folder containing memories
+- `GOOGLE_SERVICE_ACCOUNT_KEY`: JSON credentials for your Google Cloud service account
+
+---
+
+### Technical Details
+- Google Drive API v3 for file access
+- Service account with drive.readonly scope
+- Fallback chain: Google Drive → Replit Object Storage → Local storage
+- Startup connection test with logging
+
+---
+
+---
+
 ## Version 1.2.0 - Production Session Fix
 **Release Date:** 20 December 2025
 

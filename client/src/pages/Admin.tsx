@@ -2,21 +2,36 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { queryClient, apiRequest } from '@/lib/queryClient';
-import { Upload, FileSpreadsheet, Image, Video, Music, Trash2, CheckCircle2, Cloud, CloudUpload } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Cloud, CheckCircle2, FileSpreadsheet, Image, Video, Music, ExternalLink, RefreshCw, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Memory } from '@shared/schema';
+
+interface GoogleDriveStatus {
+  configured: boolean;
+  success: boolean;
+  fileCount: number;
+  files?: string[];
+  error?: string;
+}
+
+interface MemoriesResponse {
+  success: boolean;
+  memories: Memory[];
+  source?: string;
+}
+
+interface MediaResponse {
+  success: boolean;
+  files: string[];
+  source?: string;
+}
 
 export default function Admin() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const [memoriesFile, setMemoriesFile] = useState<File | null>(null);
-  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
-  const [dragActive, setDragActive] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  // Check authentication status on mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -40,205 +55,43 @@ export default function Admin() {
     checkAuth();
   }, [setLocation, toast]);
 
-  // Fetch current memories
-  const { data: memoriesData } = useQuery<{ success: boolean; memories: Memory[] }>({
+  const { data: driveStatus, refetch: refetchDrive, isLoading: isLoadingDrive } = useQuery<GoogleDriveStatus>({
+    queryKey: ['/api/google-drive/test'],
+  });
+
+  const { data: memoriesData, refetch: refetchMemories, isLoading: isLoadingMemories } = useQuery<MemoriesResponse>({
     queryKey: ['/api/memories'],
   });
 
-  // Fetch uploaded media files
-  const { data: mediaData, refetch: refetchMedia } = useQuery<{ success: boolean; files: string[] }>({
+  const { data: mediaData, refetch: refetchMedia, isLoading: isLoadingMedia } = useQuery<MediaResponse>({
     queryKey: ['/api/media'],
   });
 
-  // Upload memories file mutation
-  const uploadMemories = useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('/api/upload/memories', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Upload failed');
-      }
-      return res.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Success!',
-        description: 'Memories file uploaded successfully',
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/memories'] });
-      setMemoriesFile(null);
-    },
-    onError: (error: any) => {
-      toast({
-        title: 'Upload failed',
-        description: error.message || 'Failed to upload memories file',
-        variant: 'destructive',
-      });
-    },
-  });
-
-  // Upload media files mutation
-  const uploadMedia = useMutation({
-    mutationFn: async (files: File[]) => {
-      const formData = new FormData();
-      files.forEach(file => {
-        formData.append('files', file);
-      });
-      const res = await fetch('/api/upload/media', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Upload failed');
-      }
-      return res.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Success!',
-        description: 'Media files uploaded successfully',
-      });
-      refetchMedia();
-      setMediaFiles([]);
-    },
-    onError: (error: any) => {
-      toast({
-        title: 'Upload failed',
-        description: error.message || 'Failed to upload media files',
-        variant: 'destructive',
-      });
-    },
-  });
-
-  // Delete media file mutation
-  const deleteMedia = useMutation({
-    mutationFn: async (filename: string) => {
-      const res = await apiRequest('DELETE', `/api/media/${filename}`);
-      return res.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Success!',
-        description: 'File deleted successfully',
-      });
-      refetchMedia();
-    },
-    onError: (error: any) => {
-      toast({
-        title: 'Delete failed',
-        description: error.message || 'Failed to delete file',
-        variant: 'destructive',
-      });
-    },
-  });
-
-  // Convert HEIC files mutation
-  const convertHeic = useMutation({
-    mutationFn: async () => {
-      const res = await apiRequest('POST', '/api/convert-heic');
-      return res.json();
-    },
-    onSuccess: (data: any) => {
-      toast({
-        title: 'Conversion complete!',
-        description: data.message || `Converted ${data.converted} files`,
-      });
-      refetchMedia();
-    },
-    onError: (error: any) => {
-      toast({
-        title: 'Conversion failed',
-        description: error.message || 'Failed to convert HEIC files',
-        variant: 'destructive',
-      });
-    },
-  });
-
-  // Cloud storage status query
-  const { data: cloudStatus, refetch: refetchCloudStatus } = useQuery<{ 
-    success: boolean; 
-    cloudStorageConfigured: boolean; 
-    cloudFileCount: number; 
-    localFileCount: number 
-  }>({
-    queryKey: ['/api/cloud-status'],
-  });
-
-  // Migrate to cloud mutation
-  const migrateToCloud = useMutation({
-    mutationFn: async () => {
-      const res = await apiRequest('POST', '/api/migrate-to-cloud');
-      return res.json();
-    },
-    onSuccess: (data: any) => {
-      toast({
-        title: 'Migration complete!',
-        description: data.message || `Migrated ${data.migrated?.length || 0} files`,
-      });
-      refetchMedia();
-      refetchCloudStatus();
-    },
-    onError: (error: any) => {
-      toast({
-        title: 'Migration failed',
-        description: error.message || 'Failed to migrate to cloud storage',
-        variant: 'destructive',
-      });
-    },
-  });
-
-  const handleMemoriesFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setMemoriesFile(e.target.files[0]);
-    }
-  };
-
-  const handleMediaFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setMediaFiles(Array.from(e.target.files));
-    }
-  };
-
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      setMediaFiles(Array.from(e.dataTransfer.files));
-    }
+  const handleRefreshAll = () => {
+    refetchDrive();
+    refetchMemories();
+    refetchMedia();
+    toast({
+      title: 'Refreshing...',
+      description: 'Syncing with Google Drive',
+    });
   };
 
   const getFileIcon = (filename: string) => {
     const ext = filename.toLowerCase().split('.').pop();
     if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif'].includes(ext || '')) {
-      return <Image className="w-5 h-5 text-primary" />;
+      return <Image className="w-4 h-4 text-primary" />;
     }
     if (['mp4', 'mov', 'avi', 'webm', 'm4v', 'mkv'].includes(ext || '')) {
-      return <Video className="w-5 h-5 text-secondary" />;
+      return <Video className="w-4 h-4 text-secondary" />;
     }
     if (['mp3', 'wav', 'ogg', 'm4a', 'aac'].includes(ext || '')) {
-      return <Music className="w-5 h-5 text-accent-foreground" />;
+      return <Music className="w-4 h-4 text-accent-foreground" />;
     }
-    return <FileSpreadsheet className="w-5 h-5 text-muted-foreground" />;
+    if (['xlsx', 'xls', 'csv'].includes(ext || '')) {
+      return <FileSpreadsheet className="w-4 h-4 text-green-600" />;
+    }
+    return <FileSpreadsheet className="w-4 h-4 text-muted-foreground" />;
   };
 
   if (isCheckingAuth) {
@@ -252,286 +105,204 @@ export default function Admin() {
     );
   }
 
+  const isConnected = driveStatus?.configured && driveStatus?.success;
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <div>
-          <h1 className="text-4xl font-handwritten mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Upload and manage memories and media files</p>
+      <div className="max-w-4xl mx-auto space-y-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-handwritten mb-2">Admin Dashboard</h1>
+            <p className="text-muted-foreground">
+              View memories and media stored in Google Drive
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={handleRefreshAll}
+            disabled={isLoadingDrive || isLoadingMemories || isLoadingMedia}
+            data-testid="button-refresh-all"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isLoadingDrive ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
         </div>
 
-        {/* Cloud Storage Status */}
-        {cloudStatus?.cloudStorageConfigured && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Cloud className="w-5 h-5" />
-                Cloud Storage
-              </CardTitle>
-              <CardDescription>
-                Sync your files to persistent cloud storage for production deployment
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-muted/50 rounded-md p-4">
-                  <p className="text-sm text-muted-foreground">Cloud Files</p>
-                  <p className="text-2xl font-bold">{cloudStatus.cloudFileCount}</p>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Cloud className="w-5 h-5" />
+              Google Drive Connection
+            </CardTitle>
+            <CardDescription>
+              All memories and media files are stored in your Google Drive folder
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {isLoadingDrive ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>Checking connection...</span>
+              </div>
+            ) : isConnected ? (
+              <>
+                <div className="flex items-center gap-2 text-green-600">
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span className="font-medium">Connected to Google Drive</span>
                 </div>
-                <div className="bg-muted/50 rounded-md p-4">
-                  <p className="text-sm text-muted-foreground">Local Files</p>
-                  <p className="text-2xl font-bold">{cloudStatus.localFileCount}</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-muted/50 rounded-md p-4">
+                    <p className="text-sm text-muted-foreground">Total Files</p>
+                    <p className="text-2xl font-bold">{driveStatus?.fileCount || 0}</p>
+                  </div>
+                  <div className="bg-muted/50 rounded-md p-4">
+                    <p className="text-sm text-muted-foreground">Media Files</p>
+                    <p className="text-2xl font-bold">{mediaData?.files?.length || 0}</p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="bg-destructive/10 border border-destructive/30 rounded-md p-4">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 text-destructive mt-0.5" />
+                  <div>
+                    <p className="font-medium text-destructive">Connection Issue</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {driveStatus?.error || 'Unable to connect to Google Drive. Please check your configuration.'}
+                    </p>
+                  </div>
                 </div>
               </div>
+            )}
 
-              {cloudStatus.localFileCount > 0 && cloudStatus.cloudFileCount < cloudStatus.localFileCount && (
-                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-md p-4">
-                  <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                    You have local files that haven't been migrated to cloud storage. 
-                    Click the button below to sync them for production use.
-                  </p>
-                </div>
-              )}
-
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-md p-4">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                <strong>How to manage files:</strong> Add, edit, or remove files directly in your Google Drive folder. 
+                Changes will be reflected here automatically when you refresh.
+              </p>
               <Button
-                onClick={() => migrateToCloud.mutate()}
-                disabled={migrateToCloud.isPending || cloudStatus.localFileCount === 0}
-                variant="default"
-                data-testid="button-migrate-cloud"
+                variant="ghost"
+                size="sm"
+                className="p-0 h-auto mt-2 text-blue-600 hover:text-blue-700 hover:bg-transparent"
+                onClick={() => window.open('https://drive.google.com', '_blank')}
+                data-testid="button-open-drive"
               >
-                <CloudUpload className="w-4 h-4 mr-2" />
-                {migrateToCloud.isPending ? 'Migrating...' : 'Migrate to Cloud Storage'}
+                <ExternalLink className="w-3 h-3 mr-1" />
+                Open Google Drive
               </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-              {cloudStatus.cloudFileCount > 0 && (
-                <div className="flex items-center gap-2 text-sm text-green-600">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>{cloudStatus.cloudFileCount} files synced to cloud</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Upload Memories File */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileSpreadsheet className="w-5 h-5" />
-              Upload Memories File
-            </CardTitle>
-            <CardDescription>
-              Upload your Excel (.xlsx, .xls) or CSV file containing memory data
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="bg-muted/50 rounded-md p-4 space-y-2">
-              <p className="text-sm font-medium">Need a template?</p>
-              <p className="text-sm text-muted-foreground">
-                Download our Excel template with sample data and the exact column format needed.
-              </p>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => window.open('/api/download/template', '_blank')}
-                data-testid="button-download-template"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Download Template
-              </Button>
-            </div>
-
-            <div>
-              <input
-                type="file"
-                accept=".xlsx,.xls,.csv"
-                onChange={handleMemoriesFileChange}
-                className="hidden"
-                id="memories-file"
-                data-testid="input-memories-file"
-              />
-              <label htmlFor="memories-file">
-                <Button variant="outline" asChild>
-                  <span className="cursor-pointer">
-                    <Upload className="w-4 h-4 mr-2" />
-                    Choose File
-                  </span>
-                </Button>
-              </label>
-              {memoriesFile && (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Selected: {memoriesFile.name}
-                </p>
+              Memories
+              {memoriesData?.source && (
+                <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded">
+                  from {memoriesData.source}
+                </span>
               )}
-            </div>
-
-            <Button
-              onClick={() => memoriesFile && uploadMemories.mutate(memoriesFile)}
-              disabled={!memoriesFile || uploadMemories.isPending}
-              data-testid="button-upload-memories"
-            >
-              {uploadMemories.isPending ? 'Uploading...' : 'Upload Memories'}
-            </Button>
-
-            {memoriesData && memoriesData.memories.length > 0 && (
-              <div className="flex items-center gap-2 text-sm text-green-600">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>{memoriesData.memories.length} memories loaded</span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Upload Media Files */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Image className="w-5 h-5" />
-              Upload Media Files
             </CardTitle>
             <CardDescription>
-              Upload photos, videos, and audio files referenced in your memories
+              {memoriesData?.memories?.length || 0} memories loaded from your spreadsheet
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                dragActive 
-                  ? 'border-primary bg-primary/5' 
-                  : 'border-border hover:border-primary/50'
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              <input
-                type="file"
-                multiple
-                accept="image/*,video/*,audio/*"
-                onChange={handleMediaFilesChange}
-                className="hidden"
-                id="media-files"
-                data-testid="input-media-files"
-              />
-              <label htmlFor="media-files" className="cursor-pointer">
-                <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-lg font-medium mb-2">
-                  Drag and drop files here, or click to browse
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Supports images, videos, and audio files
-                </p>
-              </label>
-            </div>
-
-            {mediaFiles.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm font-medium">{mediaFiles.length} files selected</p>
-                <div className="max-h-40 overflow-y-auto space-y-1">
-                  {mediaFiles.map((file, index) => (
-                    <div key={index} className="flex items-center gap-2 text-sm">
-                      {getFileIcon(file.name)}
-                      <span className="truncate flex-1">{file.name}</span>
-                    </div>
-                  ))}
-                </div>
+          <CardContent>
+            {isLoadingMemories ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>Loading memories...</span>
               </div>
-            )}
-
-            <Button
-              onClick={() => mediaFiles.length > 0 && uploadMedia.mutate(mediaFiles)}
-              disabled={mediaFiles.length === 0 || uploadMedia.isPending}
-              data-testid="button-upload-media"
-            >
-              {uploadMedia.isPending ? 'Uploading...' : `Upload ${mediaFiles.length} Files`}
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Uploaded Media Files */}
-        {mediaData && mediaData.files.length > 0 && (
-          <Card>
-            <CardHeader>
-              <div className="flex flex-row items-start justify-between gap-4">
-                <div>
-                  <CardTitle>Uploaded Media Files ({mediaData.files.length})</CardTitle>
-                  <CardDescription>
-                    Manage your uploaded media files
-                  </CardDescription>
-                </div>
-                {mediaData.files.some(f => f.toLowerCase().endsWith('.heic') || f.toLowerCase().endsWith('.heif')) && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => convertHeic.mutate()}
-                    disabled={convertHeic.isPending}
-                    data-testid="button-convert-heic"
-                  >
-                    {convertHeic.isPending ? 'Converting...' : 'Convert HEIC to JPG'}
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {mediaData.files.map((filename) => (
-                  <div
-                    key={filename}
-                    className="flex items-center gap-3 p-3 bg-muted rounded-lg"
-                  >
-                    {getFileIcon(filename)}
-                    <span className="text-sm truncate flex-1">{filename}</span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deleteMedia.mutate(filename)}
-                      data-testid={`button-delete-${filename}`}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Current Memories Preview */}
-        {memoriesData && memoriesData.memories.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Current Memories</CardTitle>
-              <CardDescription>
-                Preview of loaded memories
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+            ) : memoriesData?.memories && memoriesData.memories.length > 0 ? (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
                 {memoriesData.memories.map((memory) => (
-                  <div key={memory.id} className="border border-border rounded-lg p-4">
+                  <div key={memory.id} className="border border-border rounded-lg p-4 bg-card">
                     <h3 className="text-lg font-handwritten mb-1">{memory.title}</h3>
                     <p className="text-sm text-muted-foreground mb-2">
                       {memory.city}, {memory.country} • {memory.date}
                     </p>
                     <p className="text-sm line-clamp-2">{memory.description}</p>
-                    <div className="flex gap-4 mt-3 text-xs text-muted-foreground">
-                      {memory.photoFiles.length > 0 && (
-                        <span>{memory.photoFiles.length} photos</span>
+                    <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted-foreground">
+                      {memory.photoFiles?.length > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Image className="w-3 h-3" />
+                          {memory.photoFiles.length} photos
+                        </span>
                       )}
                       {memory.videoFiles && memory.videoFiles.length > 0 && (
-                        <span>{memory.videoFiles.length} videos</span>
+                        <span className="flex items-center gap-1">
+                          <Video className="w-3 h-3" />
+                          {memory.videoFiles.length} videos
+                        </span>
                       )}
                       {memory.audioFiles && memory.audioFiles.length > 0 && (
-                        <span>{memory.audioFiles.length} audio</span>
+                        <span className="flex items-center gap-1">
+                          <Music className="w-3 h-3" />
+                          {memory.audioFiles.length} audio
+                        </span>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        )}
+            ) : (
+              <p className="text-muted-foreground text-sm">
+                No memories found. Upload a spreadsheet to your Google Drive folder.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Image className="w-5 h-5" />
+              Media Files
+              {mediaData?.source && (
+                <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded">
+                  from {mediaData.source}
+                </span>
+              )}
+            </CardTitle>
+            <CardDescription>
+              Photos, videos, and audio files in your Google Drive folder
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoadingMedia ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>Loading media files...</span>
+              </div>
+            ) : mediaData?.files && mediaData.files.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-64 overflow-y-auto">
+                {mediaData.files.map((filename) => (
+                  <div
+                    key={filename}
+                    className="flex items-center gap-2 p-2 bg-muted/50 rounded text-sm"
+                    title={filename}
+                  >
+                    {getFileIcon(filename)}
+                    <span className="truncate flex-1">{filename}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-sm">
+                No media files found. Upload photos, videos, and audio to your Google Drive folder.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="text-center text-sm text-muted-foreground">
+          <p>
+            Files in Google Drive are read-only from this app. 
+            To modify content, edit files directly in Google Drive.
+          </p>
+        </div>
       </div>
     </div>
   );

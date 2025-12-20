@@ -31,8 +31,10 @@ import {
   findMemoriesFile,
   getMediaFiles,
   downloadFile,
+  downloadMemoriesFile,
   streamFile,
-  getFileByName
+  getFileByName,
+  getFileMetadata
 } from "./google-drive";
 
 // Convert HEIC buffer to JPEG buffer
@@ -233,23 +235,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all memories (requires authentication)
   app.get("/api/memories", requireAuth, async (req, res) => {
     try {
-      // Try cloud storage first if configured
+      // Try Google Drive first if configured (primary source)
+      if (isGoogleDriveConfigured()) {
+        console.log('Fetching memories from Google Drive...');
+        const driveFile = await downloadMemoriesFile();
+        if (driveFile) {
+          const memories = parseMemoriesBuffer(driveFile.buffer, driveFile.filename);
+          console.log(`Loaded ${memories.length} memories from Google Drive`);
+          return res.json({ success: true, memories, source: 'google-drive' });
+        }
+        console.log('No memories file found in Google Drive');
+      }
+
+      // Try Replit Object Storage if configured
       if (isCloudStorageConfigured()) {
         const cloudFile = await getMemoriesFileFromCloud();
         if (cloudFile) {
           const memories = parseMemoriesBuffer(cloudFile.buffer, cloudFile.filename);
-          return res.json({ success: true, memories });
+          return res.json({ success: true, memories, source: 'cloud-storage' });
         }
       }
 
       // Fall back to local storage
       const memoriesPath = getMemoriesFilePath();
       if (!memoriesPath) {
-        return res.json({ success: true, memories: [] });
+        return res.json({ success: true, memories: [], source: 'none' });
       }
 
       const memories = parseMemoriesFile(memoriesPath);
-      res.json({ success: true, memories });
+      res.json({ success: true, memories, source: 'local' });
     } catch (error: any) {
       console.error("Error fetching memories:", error);
       res.status(500).json({ 
@@ -271,7 +285,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
         actualFilename = filename.replace(/\.(heic|heif)$/i, '.jpg');
       }
 
-      // Try cloud storage first if configured
+      const contentTypes: Record<string, string> = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp',
+        '.heic': 'image/heic',
+        '.heif': 'image/heif',
+        '.mp4': 'video/mp4',
+        '.mov': 'video/quicktime',
+        '.avi': 'video/x-msvideo',
+        '.webm': 'video/webm',
+        '.m4v': 'video/x-m4v',
+        '.mkv': 'video/x-matroska',
+        '.mp3': 'audio/mpeg',
+        '.wav': 'audio/wav',
+        '.m4a': 'audio/mp4',
+        '.aac': 'audio/aac',
+      };
+
+      // Try Google Drive first if configured (primary source)
+      if (isGoogleDriveConfigured()) {
+        let driveFile = await getFileByName(actualFilename);
+        
+        // If not found and we tried jpg, try original filename
+        if (!driveFile && actualFilename !== filename) {
+          driveFile = await getFileByName(filename);
+          if (driveFile) {
+            actualFilename = filename;
+          }
+        }
+
+        if (driveFile) {
+          const ext = path.extname(actualFilename).toLowerCase();
+          const contentType = contentTypes[ext] || driveFile.mimeType || 'application/octet-stream';
+          
+          // Get file metadata for size
+          const metadata = await getFileMetadata(driveFile.id);
+          
+          res.setHeader('Content-Type', contentType);
+          if (metadata.size > 0) {
+            res.setHeader('Content-Length', metadata.size);
+          }
+          res.setHeader('Cache-Control', 'public, max-age=31536000');
+          
+          // Stream the file
+          const stream = await streamFile(driveFile.id);
+          stream.pipe(res);
+          return;
+        }
+      }
+
+      // Try Replit Object Storage if configured
       if (isCloudStorageConfigured()) {
         let cloudResult = await streamFromCloudStorage(actualFilename);
         
@@ -306,24 +372,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const ext = path.extname(actualFilename).toLowerCase();
-      const contentTypes: Record<string, string> = {
-        '.jpg': 'image/jpeg',
-        '.jpeg': 'image/jpeg',
-        '.png': 'image/png',
-        '.gif': 'image/gif',
-        '.webp': 'image/webp',
-        '.heic': 'image/heic',
-        '.heif': 'image/heif',
-        '.mp4': 'video/mp4',
-        '.mov': 'video/quicktime',
-        '.avi': 'video/x-msvideo',
-        '.webm': 'video/webm',
-        '.mp3': 'audio/mpeg',
-        '.wav': 'audio/wav',
-        '.m4a': 'audio/mp4',
-        '.aac': 'audio/aac',
-      };
-
       res.setHeader('Content-Type', contentTypes[ext] || 'application/octet-stream');
       res.sendFile(filePath);
     } catch (error: any) {
@@ -338,17 +386,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // List all media files (requires authentication)
   app.get("/api/media", requireAuth, async (req, res) => {
     try {
-      // Try cloud storage first if configured
+      // Try Google Drive first if configured (primary source)
+      if (isGoogleDriveConfigured()) {
+        const driveFiles = await getMediaFiles();
+        if (driveFiles.length > 0) {
+          return res.json({ 
+            success: true, 
+            files: driveFiles.map(f => f.name),
+            source: 'google-drive'
+          });
+        }
+      }
+
+      // Try Replit Object Storage if configured
       if (isCloudStorageConfigured()) {
         const cloudFiles = await listCloudStorageFiles();
         if (cloudFiles.length > 0) {
-          return res.json({ success: true, files: cloudFiles });
+          return res.json({ success: true, files: cloudFiles, source: 'cloud-storage' });
         }
       }
 
       // Fall back to local storage
       const files = listMediaFiles();
-      res.json({ success: true, files });
+      res.json({ success: true, files, source: 'local' });
     } catch (error: any) {
       console.error("Error listing media files:", error);
       res.status(500).json({ 
