@@ -1,5 +1,40 @@
 # Our Journey - Release Notes
 
+## Version 2.0.0 - Performance & Polish
+**Release Date:** 20 December 2025
+
+---
+
+### Overview
+
+Version 2.0 brings significant performance improvements to the memory viewing experience, with faster photo loading and smarter media handling.
+
+---
+
+### Performance Improvements
+
+#### HEIC Photo Caching
+- **Server-Side Cache**: Converted HEIC photos are now cached on the server
+- **Instant Repeat Loads**: Previously viewed HEIC images load instantly from cache
+- **Secure Storage**: Cache stored in OS temp directory with restricted permissions
+
+#### Smart Media Loading
+- **Photo Priority**: Photos now load first before videos and audio
+- **Lazy Loading**: Videos and audio only load when scrolled into view
+- **Reduced Bandwidth**: Prevents large video files from blocking photo display
+- **Loading Indicators**: Smooth loading spinners for videos while they load
+
+---
+
+### Technical Details
+- IntersectionObserver API for lazy loading video/audio components
+- File-based HEIC cache keyed by Google Drive file ID
+- `preload="metadata"` on video/audio elements for faster initial render
+
+---
+
+---
+
 ## Version 1.3.0 - Google Drive Integration
 **Release Date:** 20 December 2025
 
