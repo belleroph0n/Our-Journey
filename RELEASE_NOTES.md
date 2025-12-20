@@ -1,5 +1,33 @@
 # Our Journey - Release Notes
 
+## Version 1.2.0 - Production Session Fix
+**Release Date:** 20 December 2025
+
+---
+
+### Overview
+
+This update fixes session persistence issues in production deployments, ensuring users stay logged in when navigating between pages.
+
+---
+
+### Bug Fixes
+
+#### Session Persistence
+- **Reverse Proxy Support**: Added trust proxy configuration for Replit's production infrastructure
+- **Cookie Configuration**: Added `sameSite: 'lax'` attribute for proper cross-page session handling
+- **Admin Panel Access**: Fixed issue where navigating to /admin would redirect to login screen
+
+---
+
+### Technical Details
+- Express now trusts the first proxy in production (`trust proxy: 1`)
+- Session cookies properly persist across page navigation and direct URL access
+
+---
+
+---
+
 ## Version 1.1.0 - Cloud Storage Integration
 **Release Date:** 20 December 2025
 
