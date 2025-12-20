@@ -23,6 +23,11 @@ if (!process.env.SESSION_SECRET) {
   throw new Error('SESSION_SECRET environment variable is required');
 }
 
+// Trust proxy for production (Replit uses reverse proxy)
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -30,6 +35,7 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
+    sameSite: 'lax',
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   },
 }));
