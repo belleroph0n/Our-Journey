@@ -307,21 +307,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Try Google Drive first if configured (primary source)
       if (isGoogleDriveConfigured()) {
-        let driveFile = await getFileByName(actualFilename);
+        // First try the exact filename requested
+        let driveFile = await getFileByName(filename);
+        let isHeicFile = false;
         
-        // If not found and we tried jpg, try original filename
-        if (!driveFile && actualFilename !== filename) {
-          driveFile = await getFileByName(filename);
-          if (driveFile) {
-            actualFilename = filename;
-          }
+        if (driveFile) {
+          const ext = path.extname(filename).toLowerCase();
+          isHeicFile = ext === '.heic' || ext === '.heif';
         }
 
         if (driveFile) {
-          const ext = path.extname(actualFilename).toLowerCase();
+          // If it's a HEIC file, convert to JPEG on-the-fly
+          if (isHeicFile) {
+            console.log(`Converting ${filename} from HEIC to JPEG on-the-fly...`);
+            try {
+              const heicBuffer = await downloadFile(driveFile.id);
+              const jpegBuffer = await convertHeicToJpeg(heicBuffer);
+              
+              res.setHeader('Content-Type', 'image/jpeg');
+              res.setHeader('Content-Length', jpegBuffer.length);
+              res.setHeader('Cache-Control', 'public, max-age=31536000');
+              res.send(jpegBuffer);
+              console.log(`Successfully converted and served ${filename} as JPEG`);
+              return;
+            } catch (convError) {
+              console.error(`Failed to convert ${filename}:`, convError);
+              // Fall through to stream original file
+            }
+          }
+          
+          // Non-HEIC file or conversion failed - stream directly
+          const ext = path.extname(filename).toLowerCase();
           const contentType = contentTypes[ext] || driveFile.mimeType || 'application/octet-stream';
           
-          // Get file metadata for size
           const metadata = await getFileMetadata(driveFile.id);
           
           res.setHeader('Content-Type', contentType);
@@ -330,7 +348,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           res.setHeader('Cache-Control', 'public, max-age=31536000');
           
-          // Stream the file
           const stream = await streamFile(driveFile.id);
           stream.pipe(res);
           return;
