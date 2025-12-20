@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Memory } from '@shared/schema';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Home, Calendar, ImageOff, ArrowLeft } from 'lucide-react';
+import { Home, Calendar, ImageOff, ArrowLeft, MapPin } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import customMarkerIcon from '@assets/Untitled design (1)_1763443679229.png';
 
@@ -57,9 +56,10 @@ interface MemoryDetailProps {
   memory: Memory;
   onBack: () => void;
   onHome: () => void;
+  onViewOnMap: () => void;
 }
 
-export default function MemoryDetail({ memory, onBack, onHome }: MemoryDetailProps) {
+export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: MemoryDetailProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
 
@@ -118,8 +118,8 @@ export default function MemoryDetail({ memory, onBack, onHome }: MemoryDetailPro
         </div>
       </div>
 
-      {/* Hero image */}
-      <div className="relative h-96 bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20">
+      {/* Hero image - 50% reduced height */}
+      <div className="relative h-48 bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20">
         <div className="absolute inset-0 flex items-center justify-center">
           <img 
             src={customMarkerIcon} 
@@ -131,19 +131,18 @@ export default function MemoryDetail({ memory, onBack, onHome }: MemoryDetailPro
           />
         </div>
         
-        {/* Location badge */}
-        <div className="absolute top-6 right-6">
-          <Badge variant="secondary" className="px-4 py-2 shadow-lg">
-            <img 
-              src={customMarkerIcon} 
-              alt="" 
-              className="w-4 h-4 mr-2 inline-block"
-              style={{
-                filter: 'invert(49%) sepia(73%) saturate(4862%) hue-rotate(316deg) brightness(101%) contrast(101%)'
-              }}
-            />
-            {memory.city}, {memory.country}
-          </Badge>
+        {/* Location badge - clickable to view on map */}
+        <div className="absolute bottom-4 right-4">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="px-4 py-2 shadow-lg rounded-full"
+            onClick={onViewOnMap}
+            data-testid="button-view-on-map"
+          >
+            <MapPin className="w-4 h-4 mr-2" style={{ color: '#FF327F' }} />
+            <span className="font-mono text-sm">{memory.city}, {memory.country}</span>
+          </Button>
         </div>
       </div>
 

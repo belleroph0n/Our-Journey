@@ -11,11 +11,12 @@ interface InteractiveMapProps {
   onMemorySelect: (memory: Memory) => void;
   onHomeClick?: () => void;
   onBack?: () => void;
+  focusMemory?: Memory | null;
 }
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || '';
 
-export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, onBack }: InteractiveMapProps) {
+export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, onBack, focusMemory }: InteractiveMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
@@ -55,18 +56,33 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
       }
     });
 
-    // Add markers for each memory
+    // Add markers for each memory - travel memories use girl with bindle, others use map pin
     memories.forEach((memory) => {
+      const isTravel = memory.tags?.includes('travel');
       const el = document.createElement('div');
       el.className = 'memory-marker';
-      el.style.width = '44px';
-      el.style.height = '44px';
       el.style.cursor = 'pointer';
-      el.style.backgroundImage = `url("${new URL('@assets/Untitled design (1)_1763443679229.png', import.meta.url).href}")`;
-      el.style.backgroundSize = 'contain';
-      el.style.backgroundRepeat = 'no-repeat';
-      el.style.backgroundPosition = 'center';
-      el.style.filter = 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%) drop-shadow(0 0 1px white) drop-shadow(0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
+      
+      if (isTravel) {
+        // Travel memories use the girl with bindle icon
+        el.style.width = '44px';
+        el.style.height = '44px';
+        el.style.backgroundImage = `url("${new URL('@assets/Untitled design (1)_1763443679229.png', import.meta.url).href}")`;
+        el.style.backgroundSize = 'contain';
+        el.style.backgroundRepeat = 'no-repeat';
+        el.style.backgroundPosition = 'center';
+        el.style.filter = 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%) drop-shadow(0 0 1px white) drop-shadow(0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
+      } else {
+        // Non-travel memories use Google Maps-style pin marker
+        el.style.width = '32px';
+        el.style.height = '40px';
+        el.innerHTML = `
+          <svg viewBox="0 0 24 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24s12-15 12-24c0-6.627-5.373-12-12-12z" fill="#FF327F"/>
+            <circle cx="12" cy="12" r="5" fill="white"/>
+          </svg>
+        `;
+      }
 
       el.addEventListener('click', () => {
         setSelectedMemory(memory);
@@ -88,6 +104,20 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
       }
     };
   }, [memories]);
+
+  // Fly to focused memory when provided
+  useEffect(() => {
+    if (focusMemory && map.current) {
+      map.current.flyTo({
+        center: [focusMemory.longitude, focusMemory.latitude],
+        zoom: 10,
+        essential: true,
+        duration: 2000
+      });
+      // Also select the memory to show the preview card
+      setSelectedMemory(focusMemory);
+    }
+  }, [focusMemory]);
 
   const handleExploreMemory = () => {
     if (selectedMemory) {

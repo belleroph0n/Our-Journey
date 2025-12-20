@@ -84,6 +84,12 @@ export default function Home() {
     setViewState('filtered');
   };
 
+  const handleViewOnMap = (memory: Memory) => {
+    console.log('Viewing memory on map:', memory.title);
+    setSelectedMemory(memory);
+    setViewState('map');
+  };
+
   if (isCheckingAuth) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -127,6 +133,7 @@ export default function Home() {
         memories={memoriesToShow.length > 0 ? memoriesToShow : memories}
         onMemorySelect={handleMemorySelect}
         onBack={handleBackToLanding}
+        focusMemory={selectedMemory}
       />
     );
   }
@@ -153,6 +160,7 @@ export default function Home() {
         memory={selectedMemory}
         onBack={backHandler}
         onHome={handleBackToLanding}
+        onViewOnMap={() => handleViewOnMap(selectedMemory)}
       />
     );
   }
