@@ -70,7 +70,7 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
     if (isNaN(date.getTime())) {
       return dateString;
     }
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString('en-NZ', { 
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
@@ -183,9 +183,6 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <p className="mt-3 text-sm text-center font-handwritten text-muted-foreground">
-                      Photo {index + 1}
-                    </p>
                   </div>
                 </div>
               ))}

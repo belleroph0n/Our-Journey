@@ -12,7 +12,7 @@ const formatDate = (dateString: string) => {
   if (isNaN(date.getTime())) {
     return dateString;
   }
-  return date.toLocaleDateString();
+  return date.toLocaleDateString('en-NZ');
 };
 
 interface FilteredMemoriesPageProps {
@@ -25,7 +25,7 @@ interface FilteredMemoriesPageProps {
 
 const categoryTitles: Record<string, string> = {
   music: 'Musical Moments',
-  family: 'Family Memories',
+  family: 'Family and Friends',
   food: 'Culinary Adventures',
   event: 'Special Events',
 };
@@ -46,6 +46,20 @@ export default function FilteredMemoriesPage({
 }: FilteredMemoriesPageProps) {
   const title = categoryTitles[category] || 'Memories';
   const description = categoryDescriptions[category] || 'Our shared experiences';
+
+  // Sort memories by date (most recent first) - only for non-travel/random categories
+  const sortedMemories = (category === 'travel' || category === 'random') 
+    ? memories 
+    : [...memories].sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        // If dates are invalid, keep original order
+        if (isNaN(dateA.getTime()) && isNaN(dateB.getTime())) return 0;
+        if (isNaN(dateA.getTime())) return 1;
+        if (isNaN(dateB.getTime())) return -1;
+        // Sort descending (most recent first)
+        return dateB.getTime() - dateA.getTime();
+      });
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -104,7 +118,7 @@ export default function FilteredMemoriesPage({
           </motion.div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
-            {memories.map((memory, index) => (
+            {sortedMemories.map((memory, index) => (
               <motion.div
                 key={memory.id}
                 initial={{ opacity: 0, y: 20 }}
