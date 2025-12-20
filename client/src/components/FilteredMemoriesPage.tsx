@@ -1,15 +1,26 @@
 import { motion } from 'framer-motion';
-import { Home, Calendar, MapPin } from 'lucide-react';
+import { Home, Calendar, MapPin, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Memory } from '@shared/schema';
 import customMarkerIcon from '@assets/Untitled design (1)_1763443679229.png';
+
+// Format date with fallback for non-standard date text
+const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return dateString;
+  }
+  return date.toLocaleDateString();
+};
 
 interface FilteredMemoriesPageProps {
   memories: Memory[];
   category: string;
   onMemorySelect: (memory: Memory) => void;
   onBack: () => void;
+  onHome: () => void;
 }
 
 const categoryTitles: Record<string, string> = {
@@ -30,23 +41,33 @@ export default function FilteredMemoriesPage({
   memories, 
   category, 
   onMemorySelect, 
-  onBack 
+  onBack,
+  onHome
 }: FilteredMemoriesPageProps) {
   const title = categoryTitles[category] || 'Memories';
   const description = categoryDescriptions[category] || 'Our shared experiences';
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Fixed Home Button - Upper Left */}
-      <div className="fixed top-4 left-4 z-20">
+      {/* Fixed Navigation Buttons - Upper Left */}
+      <div className="fixed top-4 left-4 z-20 flex gap-2">
+        <Button
+          size="icon"
+          className="rounded-full shadow-lg"
+          style={{ backgroundColor: '#FF327F' }}
+          onClick={onHome}
+          data-testid="button-home-to-landing"
+        >
+          <Home className="w-5 h-5 text-white" />
+        </Button>
         <Button
           size="icon"
           className="rounded-full shadow-lg"
           style={{ backgroundColor: '#FF327F' }}
           onClick={onBack}
-          data-testid="button-home-to-landing"
+          data-testid="button-back"
         >
-          <Home className="w-5 h-5 text-white" />
+          <ArrowLeft className="w-5 h-5 text-white" strokeWidth={2.5} />
         </Button>
       </div>
 
@@ -122,7 +143,7 @@ export default function FilteredMemoriesPage({
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           <span className="font-mono">
-                            {new Date(memory.date).toLocaleDateString()}
+                            {formatDate(memory.date)}
                           </span>
                         </div>
                       )}

@@ -138,6 +138,7 @@ export default function Home() {
         category={selectedCategory}
         onMemorySelect={handleMemorySelect}
         onBack={handleBackToLanding}
+        onHome={handleBackToLanding}
       />
     );
   }
@@ -151,6 +152,7 @@ export default function Home() {
       <MemoryDetail
         memory={selectedMemory}
         onBack={backHandler}
+        onHome={handleBackToLanding}
       />
     );
   }

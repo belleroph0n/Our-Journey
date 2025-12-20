@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Memory } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Home, Calendar, ImageOff } from 'lucide-react';
+import { Home, Calendar, ImageOff, ArrowLeft } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import customMarkerIcon from '@assets/Untitled design (1)_1763443679229.png';
 
@@ -56,14 +56,20 @@ function MediaImage({ src, alt, className, onClick }: { src: string; alt: string
 interface MemoryDetailProps {
   memory: Memory;
   onBack: () => void;
+  onHome: () => void;
 }
 
-export default function MemoryDetail({ memory, onBack }: MemoryDetailProps) {
+export default function MemoryDetail({ memory, onBack, onHome }: MemoryDetailProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
+    // If parsing fails or returns invalid date, show the original text
+    if (isNaN(date.getTime())) {
+      return dateString;
+    }
     return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'long', 
@@ -83,16 +89,25 @@ export default function MemoryDetail({ memory, onBack }: MemoryDetailProps) {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Fixed Home Button - Upper Left */}
-      <div className="fixed top-4 left-4 z-30">
+      {/* Fixed Navigation Buttons - Upper Left */}
+      <div className="fixed top-4 left-4 z-30 flex gap-2">
+        <Button
+          size="icon"
+          className="rounded-full shadow-lg"
+          style={{ backgroundColor: '#FF327F' }}
+          onClick={onHome}
+          data-testid="button-home"
+        >
+          <Home className="w-5 h-5 text-white" />
+        </Button>
         <Button
           size="icon"
           className="rounded-full shadow-lg"
           style={{ backgroundColor: '#FF327F' }}
           onClick={onBack}
-          data-testid="button-home"
+          data-testid="button-back"
         >
-          <Home className="w-5 h-5 text-white" />
+          <ArrowLeft className="w-5 h-5 text-white" strokeWidth={2.5} />
         </Button>
       </div>
 
