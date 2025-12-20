@@ -49,8 +49,8 @@ export default function FilteredMemoriesPage({
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Fixed Navigation Buttons - Upper Left */}
-      <div className="fixed top-4 left-4 z-20 flex gap-2">
+      {/* Fixed Navigation Buttons - Upper Left - Stack vertically on mobile */}
+      <div className="fixed top-4 left-4 z-20 flex flex-col sm:flex-row gap-2">
         <Button
           size="icon"
           className="rounded-full shadow-lg"
