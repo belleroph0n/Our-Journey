@@ -14,7 +14,16 @@ import {
   listMediaFiles,
   deleteMediaFile 
 } from "./file-storage";
-import { parseMemoriesFile } from "./memory-parser";
+import { parseMemoriesFile, parseMemoriesBuffer } from "./memory-parser";
+import {
+  isCloudStorageConfigured,
+  uploadToCloudStorage,
+  streamFromCloudStorage,
+  listCloudStorageFiles,
+  uploadMemoriesFileToCloud,
+  getMemoriesFileFromCloud,
+  migrateLocalFilesToCloud
+} from "./cloud-storage";
 
 // Convert HEIC buffer to JPEG buffer
 async function convertHeicToJpeg(buffer: Buffer): Promise<Buffer> {
@@ -118,7 +127,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ success: false, error: 'No file uploaded' });
       }
 
+      // Save to local storage
       saveMemoriesFile(req.file.buffer, req.file.originalname);
+      
+      // Also upload to cloud storage if configured
+      if (isCloudStorageConfigured()) {
+        try {
+          await uploadMemoriesFileToCloud(req.file.buffer, req.file.originalname);
+          console.log('Memories file also uploaded to cloud storage');
+        } catch (cloudError) {
+          console.error('Failed to upload memories to cloud storage:', cloudError);
+        }
+      }
       
       // Parse the file to validate it
       const memoriesPath = getMemoriesFilePath();
@@ -151,28 +171,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const uploadedFiles: string[] = [];
+      const cloudConfigured = isCloudStorageConfigured();
       
       for (const file of files) {
         const ext = path.extname(file.originalname).toLowerCase();
+        let finalFilename = file.originalname;
+        let finalBuffer = file.buffer;
+        let contentType = file.mimetype || 'application/octet-stream';
         
         // Convert HEIC/HEIF files to JPEG
         if (ext === '.heic' || ext === '.heif') {
           try {
             console.log(`Converting ${file.originalname} from HEIC to JPEG...`);
             const jpegBuffer = await convertHeicToJpeg(file.buffer);
-            const newFilename = file.originalname.replace(/\.(heic|heif)$/i, '.jpg');
-            saveMediaFile(newFilename, jpegBuffer);
-            uploadedFiles.push(newFilename);
-            console.log(`Successfully converted ${file.originalname} to ${newFilename}`);
+            finalFilename = file.originalname.replace(/\.(heic|heif)$/i, '.jpg');
+            finalBuffer = jpegBuffer;
+            contentType = 'image/jpeg';
+            console.log(`Successfully converted ${file.originalname} to ${finalFilename}`);
           } catch (convError) {
             console.error(`Failed to convert ${file.originalname}:`, convError);
-            // Save original if conversion fails
-            saveMediaFile(file.originalname, file.buffer);
-            uploadedFiles.push(file.originalname);
           }
-        } else {
-          saveMediaFile(file.originalname, file.buffer);
-          uploadedFiles.push(file.originalname);
+        }
+        
+        // Save to local storage
+        saveMediaFile(finalFilename, finalBuffer);
+        uploadedFiles.push(finalFilename);
+        
+        // Also upload to cloud storage if configured
+        if (cloudConfigured) {
+          try {
+            await uploadToCloudStorage(finalFilename, finalBuffer, contentType);
+          } catch (cloudError) {
+            console.error(`Failed to upload ${finalFilename} to cloud:`, cloudError);
+          }
         }
       }
 
@@ -193,6 +224,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all memories (requires authentication)
   app.get("/api/memories", requireAuth, async (req, res) => {
     try {
+      // Try cloud storage first if configured
+      if (isCloudStorageConfigured()) {
+        const cloudFile = await getMemoriesFileFromCloud();
+        if (cloudFile) {
+          const memories = parseMemoriesBuffer(cloudFile.buffer, cloudFile.filename);
+          return res.json({ success: true, memories });
+        }
+      }
+
+      // Fall back to local storage
       const memoriesPath = getMemoriesFilePath();
       if (!memoriesPath) {
         return res.json({ success: true, memories: [] });
@@ -213,18 +254,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/media/:filename", requireAuth, async (req, res) => {
     try {
       const { filename } = req.params;
-      let filePath = getMediaFilePath(filename);
-
-      // If HEIC/HEIF file not found, try the converted JPG version
       let actualFilename = filename;
-      if (!filePath) {
-        const reqExt = path.extname(filename).toLowerCase();
-        if (reqExt === '.heic' || reqExt === '.heif') {
-          const jpgFilename = filename.replace(/\.(heic|heif)$/i, '.jpg');
-          filePath = getMediaFilePath(jpgFilename);
-          if (filePath) {
-            actualFilename = jpgFilename;
+
+      // If HEIC/HEIF file requested, try the converted JPG version first
+      const reqExt = path.extname(filename).toLowerCase();
+      if (reqExt === '.heic' || reqExt === '.heif') {
+        actualFilename = filename.replace(/\.(heic|heif)$/i, '.jpg');
+      }
+
+      // Try cloud storage first if configured
+      if (isCloudStorageConfigured()) {
+        let cloudResult = await streamFromCloudStorage(actualFilename);
+        
+        // If not found and we tried jpg, try original filename
+        if (!cloudResult && actualFilename !== filename) {
+          cloudResult = await streamFromCloudStorage(filename);
+          if (cloudResult) {
+            actualFilename = filename;
           }
+        }
+
+        if (cloudResult) {
+          res.setHeader('Content-Type', cloudResult.contentType);
+          res.setHeader('Content-Length', cloudResult.size);
+          res.setHeader('Cache-Control', 'public, max-age=31536000');
+          cloudResult.stream.pipe(res);
+          return;
+        }
+      }
+
+      // Fall back to local storage
+      let filePath = getMediaFilePath(actualFilename);
+      if (!filePath && actualFilename !== filename) {
+        filePath = getMediaFilePath(filename);
+        if (filePath) {
+          actualFilename = filename;
         }
       }
 
@@ -232,7 +296,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ success: false, error: 'File not found' });
       }
 
-      // Determine content type based on actual file being served
       const ext = path.extname(actualFilename).toLowerCase();
       const contentTypes: Record<string, string> = {
         '.jpg': 'image/jpeg',
@@ -266,6 +329,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // List all media files (requires authentication)
   app.get("/api/media", requireAuth, async (req, res) => {
     try {
+      // Try cloud storage first if configured
+      if (isCloudStorageConfigured()) {
+        const cloudFiles = await listCloudStorageFiles();
+        if (cloudFiles.length > 0) {
+          return res.json({ success: true, files: cloudFiles });
+        }
+      }
+
+      // Fall back to local storage
       const files = listMediaFiles();
       res.json({ success: true, files });
     } catch (error: any) {
@@ -345,6 +417,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false, 
         error: error.message || 'Failed to delete media file' 
+      });
+    }
+  });
+
+  // Migrate local files to cloud storage (requires authentication)
+  app.post("/api/migrate-to-cloud", requireAuth, async (req, res) => {
+    try {
+      if (!isCloudStorageConfigured()) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Cloud storage is not configured' 
+        });
+      }
+
+      console.log('Starting migration to cloud storage...');
+      const result = await migrateLocalFilesToCloud();
+      
+      console.log(`Migration complete: ${result.migrated.length} files migrated, ${result.errors.length} errors`);
+      
+      res.json({ 
+        success: true, 
+        message: `Migrated ${result.migrated.length} files to cloud storage`,
+        migrated: result.migrated,
+        errors: result.errors.length > 0 ? result.errors : undefined
+      });
+    } catch (error: any) {
+      console.error("Error migrating to cloud storage:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to migrate to cloud storage' 
+      });
+    }
+  });
+
+  // Check cloud storage status (requires authentication)
+  app.get("/api/cloud-status", requireAuth, async (req, res) => {
+    try {
+      const configured = isCloudStorageConfigured();
+      let cloudFileCount = 0;
+      
+      if (configured) {
+        const cloudFiles = await listCloudStorageFiles();
+        cloudFileCount = cloudFiles.length;
+      }
+
+      const localFiles = listMediaFiles();
+      
+      res.json({ 
+        success: true,
+        cloudStorageConfigured: configured,
+        cloudFileCount,
+        localFileCount: localFiles.length
+      });
+    } catch (error: any) {
+      console.error("Error checking cloud status:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to check cloud status' 
       });
     }
   });

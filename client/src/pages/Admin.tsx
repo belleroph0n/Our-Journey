@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
-import { Upload, FileSpreadsheet, Image, Video, Music, Trash2, CheckCircle2 } from 'lucide-react';
+import { Upload, FileSpreadsheet, Image, Video, Music, Trash2, CheckCircle2, Cloud, CloudUpload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Memory } from '@shared/schema';
 
@@ -162,6 +162,39 @@ export default function Admin() {
     },
   });
 
+  // Cloud storage status query
+  const { data: cloudStatus, refetch: refetchCloudStatus } = useQuery<{ 
+    success: boolean; 
+    cloudStorageConfigured: boolean; 
+    cloudFileCount: number; 
+    localFileCount: number 
+  }>({
+    queryKey: ['/api/cloud-status'],
+  });
+
+  // Migrate to cloud mutation
+  const migrateToCloud = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest('POST', '/api/migrate-to-cloud');
+      return res.json();
+    },
+    onSuccess: (data: any) => {
+      toast({
+        title: 'Migration complete!',
+        description: data.message || `Migrated ${data.migrated?.length || 0} files`,
+      });
+      refetchMedia();
+      refetchCloudStatus();
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Migration failed',
+        description: error.message || 'Failed to migrate to cloud storage',
+        variant: 'destructive',
+      });
+    },
+  });
+
   const handleMemoriesFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setMemoriesFile(e.target.files[0]);
@@ -226,6 +259,59 @@ export default function Admin() {
           <h1 className="text-4xl font-handwritten mb-2">Admin Dashboard</h1>
           <p className="text-muted-foreground">Upload and manage memories and media files</p>
         </div>
+
+        {/* Cloud Storage Status */}
+        {cloudStatus?.cloudStorageConfigured && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Cloud className="w-5 h-5" />
+                Cloud Storage
+              </CardTitle>
+              <CardDescription>
+                Sync your files to persistent cloud storage for production deployment
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-muted/50 rounded-md p-4">
+                  <p className="text-sm text-muted-foreground">Cloud Files</p>
+                  <p className="text-2xl font-bold">{cloudStatus.cloudFileCount}</p>
+                </div>
+                <div className="bg-muted/50 rounded-md p-4">
+                  <p className="text-sm text-muted-foreground">Local Files</p>
+                  <p className="text-2xl font-bold">{cloudStatus.localFileCount}</p>
+                </div>
+              </div>
+
+              {cloudStatus.localFileCount > 0 && cloudStatus.cloudFileCount < cloudStatus.localFileCount && (
+                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-md p-4">
+                  <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                    You have local files that haven't been migrated to cloud storage. 
+                    Click the button below to sync them for production use.
+                  </p>
+                </div>
+              )}
+
+              <Button
+                onClick={() => migrateToCloud.mutate()}
+                disabled={migrateToCloud.isPending || cloudStatus.localFileCount === 0}
+                variant="default"
+                data-testid="button-migrate-cloud"
+              >
+                <CloudUpload className="w-4 h-4 mr-2" />
+                {migrateToCloud.isPending ? 'Migrating...' : 'Migrate to Cloud Storage'}
+              </Button>
+
+              {cloudStatus.cloudFileCount > 0 && (
+                <div className="flex items-center gap-2 text-sm text-green-600">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{cloudStatus.cloudFileCount} files synced to cloud</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Upload Memories File */}
         <Card>

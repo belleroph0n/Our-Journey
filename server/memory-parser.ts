@@ -20,6 +20,20 @@ export function parseMemoriesFile(filePath: string): Memory[] {
   throw new Error('Unsupported file format. Please upload .xlsx, .xls, or .csv file');
 }
 
+export function parseMemoriesBuffer(buffer: Buffer, filename: string): Memory[] {
+  const ext = filename.toLowerCase();
+
+  if (ext.endsWith('.xlsx') || ext.endsWith('.xls')) {
+    return parseExcel(buffer);
+  } 
+  
+  if (ext.endsWith('.csv')) {
+    return parseCSV(buffer.toString());
+  }
+
+  throw new Error('Unsupported file format. Please upload .xlsx, .xls, or .csv file');
+}
+
 function parseExcel(buffer: Buffer): Memory[] {
   const workbook = XLSX.read(buffer, { type: 'buffer', cellDates: true });
   const sheetName = workbook.SheetNames[0];
