@@ -1,5 +1,9 @@
 # Our Journey - Interactive Memory Map
 
+**Version:** 1.0.0  
+**Release Date:** 20 December 2025  
+**Custom Domain:** alexndan.com
+
 ## Overview
 
 "Our Journey" is an interactive memory mapping application that allows users to visualize and explore shared memories on a global map. The application features a password-protected interface with an immersive 3D globe/map experience powered by Mapbox, where users can view memories as custom pin markers, click to see detailed views with photos, videos, and audio recordings. The design aesthetic is inspired by hand-drawn travel journals and scrapbooks, creating a warm, intimate digital experience.
