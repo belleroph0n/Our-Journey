@@ -467,7 +467,7 @@ function DiceIcon({ className }: { className?: string }) {
 
   const renderDice = (value: number, rotation: number) => (
     <div 
-      className="relative w-10 h-10 sm:w-12 sm:h-12 bg-foreground/10 border-2 border-foreground/35 rounded-lg"
+      className="relative aspect-square w-10 sm:w-12 bg-foreground/10 border-2 border-foreground/35 rounded-lg"
       style={{ transform: `rotate(${rotation}deg)` }}
     >
       <div className="absolute inset-1 grid grid-cols-3 grid-rows-3 gap-0.5">
@@ -477,7 +477,7 @@ function DiceIcon({ className }: { className?: string }) {
             return (
               <div
                 key={`${row}-${col}`}
-                className={`w-full h-full rounded-full ${showDot ? 'bg-foreground/60' : 'bg-transparent'}`}
+                className={`aspect-square rounded-full ${showDot ? 'bg-foreground/60' : 'bg-transparent'}`}
               />
             );
           })

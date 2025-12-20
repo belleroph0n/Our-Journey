@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Memory } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { Home, Calendar, ImageOff, ArrowLeft, MapPin } from 'lucide-react';
@@ -62,6 +62,11 @@ interface MemoryDetailProps {
 export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: MemoryDetailProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
+
+  // Scroll to top when memory detail opens
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [memory.id]);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -132,16 +137,19 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
         </div>
         
         {/* Location badge - clickable to view on map */}
-        <div className="absolute bottom-4 right-4">
+        <div className="absolute bottom-4 right-4 max-w-[60%] sm:max-w-none">
           <Button
             variant="secondary"
             size="sm"
-            className="px-4 py-2 shadow-lg rounded-full"
+            className="px-3 sm:px-4 py-2 shadow-lg rounded-full"
             onClick={onViewOnMap}
             data-testid="button-view-on-map"
           >
-            <MapPin className="w-4 h-4 mr-2" style={{ color: '#FF327F' }} />
-            <span className="font-mono text-sm">{memory.city}, {memory.country}</span>
+            <MapPin className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" style={{ color: '#FF327F' }} />
+            <span className="font-mono text-xs sm:text-sm truncate">
+              <span className="sm:hidden">{memory.city}</span>
+              <span className="hidden sm:inline">{memory.city}, {memory.country}</span>
+            </span>
           </Button>
         </div>
       </div>
