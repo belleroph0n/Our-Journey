@@ -276,6 +276,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Batch convert all HEIC files to JPG (requires authentication)
+  app.post("/api/convert-heic", requireAuth, async (req, res) => {
+    try {
+      const files = listMediaFiles();
+      const heicFiles = files.filter(f => 
+        f.toLowerCase().endsWith('.heic') || f.toLowerCase().endsWith('.heif')
+      );
+
+      if (heicFiles.length === 0) {
+        return res.json({ success: true, message: 'No HEIC files to convert', converted: 0 });
+      }
+
+      let converted = 0;
+      const errors: string[] = [];
+
+      for (const filename of heicFiles) {
+        try {
+          const filePath = getMediaFilePath(filename);
+          if (!filePath) continue;
+
+          const buffer = fs.readFileSync(filePath);
+          console.log(`Converting ${filename}...`);
+          const jpegBuffer = await convertHeicToJpeg(buffer);
+          const newFilename = filename.replace(/\.(heic|heif)$/i, '.jpg');
+          saveMediaFile(newFilename, jpegBuffer);
+          
+          // Delete original HEIC file
+          deleteMediaFile(filename);
+          converted++;
+          console.log(`Converted ${filename} to ${newFilename}`);
+        } catch (err: any) {
+          console.error(`Failed to convert ${filename}:`, err.message);
+          errors.push(`${filename}: ${err.message}`);
+        }
+      }
+
+      res.json({ 
+        success: true, 
+        message: `Converted ${converted} of ${heicFiles.length} HEIC files`,
+        converted,
+        total: heicFiles.length,
+        errors: errors.length > 0 ? errors : undefined
+      });
+    } catch (error: any) {
+      console.error("Error batch converting HEIC files:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to convert HEIC files' 
+      });
+    }
+  });
+
   // Delete media file (requires authentication)
   app.delete("/api/media/:filename", requireAuth, async (req, res) => {
     try {

@@ -6,6 +6,12 @@ import { Home, Calendar, ImageOff } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import customMarkerIcon from '@assets/Untitled design (1)_1763443679229.png';
 
+// Helper to detect video files
+const isVideoFile = (filename: string) => {
+  const ext = filename.toLowerCase().split('.').pop();
+  return ['mp4', 'mov', 'avi', 'webm', 'm4v', 'mkv'].includes(ext || '');
+};
+
 function MediaImage({ src, alt, className, onClick }: { src: string; alt: string; className?: string; onClick?: () => void }) {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -140,12 +146,12 @@ export default function MemoryDetail({ memory, onBack }: MemoryDetailProps) {
           </p>
         </div>
 
-        {/* Photo gallery */}
-        {memory.photoFiles.length > 0 && (
+        {/* Photo gallery - filter out video files */}
+        {memory.photoFiles.filter(f => !isVideoFile(f)).length > 0 && (
           <div className="space-y-6">
             <h2 className="text-3xl font-handwritten">Photos</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {memory.photoFiles.map((photo, index) => (
+              {memory.photoFiles.filter(f => !isVideoFile(f)).map((photo, index) => (
                 <div
                   key={photo}
                   className="group cursor-pointer"
@@ -173,29 +179,35 @@ export default function MemoryDetail({ memory, onBack }: MemoryDetailProps) {
           </div>
         )}
 
-        {/* Video section */}
-        {memory.videoFiles && memory.videoFiles.length > 0 && (
-          <div className="space-y-6">
-            <h2 className="text-3xl font-handwritten">Videos</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {memory.videoFiles.map((video, index) => (
-                <div
-                  key={video}
-                  className="aspect-video bg-card rounded-xl overflow-hidden shadow-lg"
-                  data-testid={`video-${index}`}
-                >
-                  <video
-                    src={`/api/media/${video}`}
-                    controls
-                    className="w-full h-full"
+        {/* Video section - combine videoFiles and any videos in photoFiles */}
+        {(() => {
+          const allVideos = [
+            ...(memory.videoFiles || []),
+            ...memory.photoFiles.filter(f => isVideoFile(f))
+          ];
+          return allVideos.length > 0 && (
+            <div className="space-y-6">
+              <h2 className="text-3xl font-handwritten">Videos</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {allVideos.map((video, index) => (
+                  <div
+                    key={video}
+                    className="aspect-video bg-card rounded-xl overflow-hidden shadow-lg"
+                    data-testid={`video-${index}`}
                   >
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              ))}
+                    <video
+                      src={`/api/media/${video}`}
+                      controls
+                      className="w-full h-full"
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Audio section */}
         {memory.audioFiles && memory.audioFiles.length > 0 && (

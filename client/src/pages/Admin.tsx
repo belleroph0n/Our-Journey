@@ -140,6 +140,28 @@ export default function Admin() {
     },
   });
 
+  // Convert HEIC files mutation
+  const convertHeic = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest('POST', '/api/convert-heic');
+      return res.json();
+    },
+    onSuccess: (data: any) => {
+      toast({
+        title: 'Conversion complete!',
+        description: data.message || `Converted ${data.converted} files`,
+      });
+      refetchMedia();
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Conversion failed',
+        description: error.message || 'Failed to convert HEIC files',
+        variant: 'destructive',
+      });
+    },
+  });
+
   const handleMemoriesFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setMemoriesFile(e.target.files[0]);
@@ -174,13 +196,13 @@ export default function Admin() {
 
   const getFileIcon = (filename: string) => {
     const ext = filename.toLowerCase().split('.').pop();
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext || '')) {
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif'].includes(ext || '')) {
       return <Image className="w-5 h-5 text-primary" />;
     }
-    if (['mp4', 'mov', 'avi'].includes(ext || '')) {
+    if (['mp4', 'mov', 'avi', 'webm', 'm4v', 'mkv'].includes(ext || '')) {
       return <Video className="w-5 h-5 text-secondary" />;
     }
-    if (['mp3', 'wav', 'ogg'].includes(ext || '')) {
+    if (['mp3', 'wav', 'ogg', 'm4a', 'aac'].includes(ext || '')) {
       return <Music className="w-5 h-5 text-accent-foreground" />;
     }
     return <FileSpreadsheet className="w-5 h-5 text-muted-foreground" />;
@@ -345,10 +367,25 @@ export default function Admin() {
         {mediaData && mediaData.files.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Uploaded Media Files ({mediaData.files.length})</CardTitle>
-              <CardDescription>
-                Manage your uploaded media files
-              </CardDescription>
+              <div className="flex flex-row items-start justify-between gap-4">
+                <div>
+                  <CardTitle>Uploaded Media Files ({mediaData.files.length})</CardTitle>
+                  <CardDescription>
+                    Manage your uploaded media files
+                  </CardDescription>
+                </div>
+                {mediaData.files.some(f => f.toLowerCase().endsWith('.heic') || f.toLowerCase().endsWith('.heif')) && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => convertHeic.mutate()}
+                    disabled={convertHeic.isPending}
+                    data-testid="button-convert-heic"
+                  >
+                    {convertHeic.isPending ? 'Converting...' : 'Convert HEIC to JPG'}
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
