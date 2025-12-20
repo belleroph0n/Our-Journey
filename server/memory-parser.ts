@@ -38,6 +38,42 @@ function parseCSV(content: string): Memory[] {
   return result.data.map((row: any) => convertRowToMemory(row));
 }
 
+// Parse date from various formats (DD/MM/YY, DD/MM/YYYY, or ISO) to ISO format
+function parseDate(dateValue: any): string {
+  if (!dateValue) return '';
+  
+  // If it's already a Date object (from cellDates: true)
+  if (dateValue instanceof Date) {
+    return dateValue.toISOString();
+  }
+  
+  const dateStr = dateValue.toString().trim();
+  if (!dateStr) return '';
+  
+  // Try DD/MM/YY or DD/MM/YYYY format
+  const ddmmyyMatch = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (ddmmyyMatch) {
+    const day = parseInt(ddmmyyMatch[1], 10);
+    const month = parseInt(ddmmyyMatch[2], 10) - 1; // JS months are 0-indexed
+    let year = parseInt(ddmmyyMatch[3], 10);
+    // Handle 2-digit years (assume 2000s for years < 50, 1900s otherwise)
+    if (year < 100) {
+      year = year < 50 ? 2000 + year : 1900 + year;
+    }
+    const date = new Date(year, month, day);
+    return date.toISOString();
+  }
+  
+  // Try to parse as-is (might be ISO format already)
+  const parsed = new Date(dateStr);
+  if (!isNaN(parsed.getTime())) {
+    return parsed.toISOString();
+  }
+  
+  // Return original if we can't parse it
+  return dateStr;
+}
+
 function convertRowToMemory(row: any): Memory {
   // Parse comma-separated file lists
   const photoFiles = row.photo_files || row.photoFiles || row.photos || '';
@@ -52,7 +88,7 @@ function convertRowToMemory(row: any): Memory {
     city: row.city || '',
     latitude: parseFloat(row.latitude) || 0,
     longitude: parseFloat(row.longitude) || 0,
-    date: row.date || '',
+    date: parseDate(row.date),
     description: row.description || '',
     tags: tags ? tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [],
     photoFiles: photoFiles ? photoFiles.split(',').map((f: string) => f.trim()).filter(Boolean) : [],
