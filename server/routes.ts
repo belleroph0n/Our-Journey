@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import os from "os";
 import sharp from "sharp";
 import heicConvert from "heic-convert";
 import { 
@@ -55,6 +56,31 @@ async function convertHeicToJpeg(buffer: Buffer): Promise<Buffer> {
 
 // Initialize storage on startup
 initializeStorage();
+
+// Simple file-based cache for converted HEIC files (using OS temp directory for security)
+const HEIC_CACHE_DIR = path.join(os.tmpdir(), 'our-journey-heic-cache');
+
+// Ensure cache directory exists
+if (!fs.existsSync(HEIC_CACHE_DIR)) {
+  fs.mkdirSync(HEIC_CACHE_DIR, { recursive: true, mode: 0o700 });
+}
+
+function getCachedHeicPath(fileId: string): string {
+  return path.join(HEIC_CACHE_DIR, `${fileId}.jpg`);
+}
+
+function getHeicFromCache(fileId: string): Buffer | null {
+  const cachePath = getCachedHeicPath(fileId);
+  if (fs.existsSync(cachePath)) {
+    return fs.readFileSync(cachePath);
+  }
+  return null;
+}
+
+function saveHeicToCache(fileId: string, jpegBuffer: Buffer): void {
+  const cachePath = getCachedHeicPath(fileId);
+  fs.writeFileSync(cachePath, jpegBuffer);
+}
 
 // Configure multer for file uploads
 const upload = multer({ 
@@ -317,18 +343,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         if (driveFile) {
-          // If it's a HEIC file, convert to JPEG on-the-fly
+          // If it's a HEIC file, convert to JPEG (with caching)
           if (isHeicFile) {
-            console.log(`Converting ${filename} from HEIC to JPEG on-the-fly...`);
+            // Check cache first
+            const cachedBuffer = getHeicFromCache(driveFile.id);
+            if (cachedBuffer) {
+              console.log(`Serving cached JPEG for ${filename}`);
+              res.setHeader('Content-Type', 'image/jpeg');
+              res.setHeader('Content-Length', cachedBuffer.length);
+              res.setHeader('Cache-Control', 'public, max-age=31536000');
+              res.send(cachedBuffer);
+              return;
+            }
+            
+            // Not in cache, convert and cache
+            console.log(`Converting ${filename} from HEIC to JPEG...`);
             try {
               const heicBuffer = await downloadFile(driveFile.id);
               const jpegBuffer = await convertHeicToJpeg(heicBuffer);
+              
+              // Save to cache for future requests
+              saveHeicToCache(driveFile.id, jpegBuffer);
               
               res.setHeader('Content-Type', 'image/jpeg');
               res.setHeader('Content-Length', jpegBuffer.length);
               res.setHeader('Cache-Control', 'public, max-age=31536000');
               res.send(jpegBuffer);
-              console.log(`Successfully converted and served ${filename} as JPEG`);
+              console.log(`Converted, cached, and served ${filename} as JPEG`);
               return;
             } catch (convError) {
               console.error(`Failed to convert ${filename}:`, convError);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Memory } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { Home, Calendar, ImageOff, ArrowLeft, MapPin } from 'lucide-react';
@@ -10,6 +10,110 @@ const isVideoFile = (filename: string) => {
   const ext = filename.toLowerCase().split('.').pop();
   return ['mp4', 'mov', 'avi', 'webm', 'm4v', 'mkv'].includes(ext || '');
 };
+
+// Lazy load video component - only loads when visible
+function LazyVideo({ src, index }: { src: string; index: number }) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '100px' }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="aspect-video bg-card rounded-xl overflow-hidden shadow-lg"
+      data-testid={`video-${index}`}
+    >
+      {isVisible ? (
+        <>
+          {!hasLoaded && (
+            <div className="w-full h-full flex items-center justify-center bg-muted/30">
+              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+          <video
+            src={src}
+            controls
+            className={`w-full h-full ${!hasLoaded ? 'hidden' : ''}`}
+            onLoadedData={() => setHasLoaded(true)}
+            preload="metadata"
+          >
+            Your browser does not support the video tag.
+          </video>
+        </>
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-muted/30">
+          <div className="text-muted-foreground text-sm">Video</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Lazy load audio component - only loads when visible
+function LazyAudio({ src, index }: { src: string; index: number }) {
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '100px' }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="bg-card p-6 rounded-xl shadow-md"
+    >
+      <p className="font-handwritten text-lg mb-4">Audio {index + 1}</p>
+      {isVisible ? (
+        <audio
+          src={src}
+          controls
+          className="w-full"
+          data-testid={`audio-${index}`}
+          preload="metadata"
+        >
+          Your browser does not support the audio tag.
+        </audio>
+      ) : (
+        <div className="h-12 flex items-center justify-center bg-muted/30 rounded">
+          <div className="text-muted-foreground text-sm">Loading audio...</div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function MediaImage({ src, alt, className, onClick }: { src: string; alt: string; className?: string; onClick?: () => void }) {
   const [hasError, setHasError] = useState(false);
@@ -198,7 +302,7 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
           </div>
         )}
 
-        {/* Video section - combine videoFiles and any videos in photoFiles */}
+        {/* Video section - combine videoFiles and any videos in photoFiles (lazy loaded) */}
         {(() => {
           const allVideos = [
             ...(memory.videoFiles || []),
@@ -209,45 +313,20 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
               <h2 className="text-3xl font-handwritten">Videos</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {allVideos.map((video, index) => (
-                  <div
-                    key={video}
-                    className="aspect-video bg-card rounded-xl overflow-hidden shadow-lg"
-                    data-testid={`video-${index}`}
-                  >
-                    <video
-                      src={`/api/media/${video}`}
-                      controls
-                      className="w-full h-full"
-                    >
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
+                  <LazyVideo key={video} src={`/api/media/${video}`} index={index} />
                 ))}
               </div>
             </div>
           );
         })()}
 
-        {/* Audio section */}
+        {/* Audio section (lazy loaded) */}
         {memory.audioFiles && memory.audioFiles.length > 0 && (
           <div className="space-y-6">
             <h2 className="text-3xl font-handwritten">Audio Memories</h2>
             <div className="space-y-4">
               {memory.audioFiles.map((audio, index) => (
-                <div
-                  key={audio}
-                  className="bg-card p-6 rounded-xl shadow-md"
-                >
-                  <p className="font-handwritten text-lg mb-4">Audio {index + 1}</p>
-                  <audio
-                    src={`/api/media/${audio}`}
-                    controls
-                    className="w-full"
-                    data-testid={`audio-${index}`}
-                  >
-                    Your browser does not support the audio tag.
-                  </audio>
-                </div>
+                <LazyAudio key={audio} src={`/api/media/${audio}`} index={index} />
               ))}
             </div>
           </div>
