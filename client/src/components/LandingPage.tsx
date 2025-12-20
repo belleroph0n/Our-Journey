@@ -36,41 +36,63 @@ const categories: CategoryConfig[] = [
 function SpinningGlobeAnimation() {
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="relative w-20 h-20">
-        {/* Globe sphere with rotating continents */}
-        <motion.div
-          className="w-20 h-20 rounded-full border-4 border-foreground/40 overflow-hidden relative"
+      <div className="relative w-24 h-28">
+        {/* Tilted axis line */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-24 bg-foreground/20 transform rotate-[23deg] origin-bottom" />
+        
+        {/* Globe sphere */}
+        <div className="relative w-20 h-20 mx-auto rounded-full border-3 border-foreground/45 overflow-hidden"
           style={{
-            background: 'linear-gradient(135deg, hsl(var(--foreground) / 0.05) 0%, hsl(var(--foreground) / 0.15) 100%)',
+            background: 'radial-gradient(circle at 30% 30%, hsl(var(--foreground) / 0.08) 0%, hsl(var(--foreground) / 0.18) 100%)',
           }}
         >
-          {/* Continents moving across the globe */}
+          {/* Latitude lines */}
+          <div className="absolute top-[25%] left-0 right-0 h-px bg-foreground/15" />
+          <div className="absolute top-[50%] left-0 right-0 h-px bg-foreground/20" />
+          <div className="absolute top-[75%] left-0 right-0 h-px bg-foreground/15" />
+          
+          {/* Rotating continents using SVG for recognizable shapes */}
           <motion.div
             className="absolute inset-0"
             animate={{ x: [-80, 80] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
           >
-            {/* Africa/Europe shape */}
-            <div className="absolute top-3 left-6 w-4 h-6 bg-foreground/30 rounded-full transform rotate-12" />
-            {/* Americas shape */}
-            <div className="absolute top-2 left-16 w-3 h-8 bg-foreground/30 rounded-full transform -rotate-6" />
-            {/* Asia shape */}
-            <div className="absolute top-4 left-24 w-5 h-5 bg-foreground/30 rounded-full" />
-            {/* Australia shape */}
-            <div className="absolute bottom-3 left-28 w-3 h-2 bg-foreground/30 rounded-full" />
-            {/* Duplicate set for seamless loop */}
-            <div className="absolute top-3 left-[6.5rem] w-4 h-6 bg-foreground/30 rounded-full transform rotate-12" />
-            <div className="absolute top-2 left-[10rem] w-3 h-8 bg-foreground/30 rounded-full transform -rotate-6" />
+            <svg width="160" height="80" viewBox="0 0 160 80" className="absolute top-0 left-0">
+              {/* Americas */}
+              <path d="M10 15 Q8 20 10 30 Q12 35 8 45 Q6 50 10 55 Q12 58 10 65 L14 65 Q18 55 15 45 Q13 35 16 25 Q18 18 14 15 Z" className="fill-foreground/35" />
+              <path d="M12 50 Q20 55 25 50 Q30 45 25 55 Q20 60 15 55 Z" className="fill-foreground/35" />
+              
+              {/* Africa */}
+              <path d="M55 20 Q50 25 48 35 Q50 45 55 55 Q60 60 58 50 Q56 40 60 30 Q62 22 55 20 Z" className="fill-foreground/35" />
+              
+              {/* Europe */}
+              <path d="M52 12 Q48 15 50 20 Q55 22 58 18 Q60 14 55 12 Z" className="fill-foreground/35" />
+              
+              {/* Asia */}
+              <path d="M65 10 Q60 15 62 25 Q70 30 80 28 Q90 25 95 30 Q100 35 95 20 Q85 12 75 10 Q68 8 65 10 Z" className="fill-foreground/35" />
+              
+              {/* Australia */}
+              <path d="M85 50 Q80 55 82 60 Q88 65 95 60 Q98 55 92 50 Q88 48 85 50 Z" className="fill-foreground/35" />
+              
+              {/* Duplicate set for seamless loop */}
+              <path d="M130 15 Q128 20 130 30 Q132 35 128 45 Q126 50 130 55 Q132 58 130 65 L134 65 Q138 55 135 45 Q133 35 136 25 Q138 18 134 15 Z" className="fill-foreground/35" />
+              <path d="M132 50 Q140 55 145 50 Q150 45 145 55 Q140 60 135 55 Z" className="fill-foreground/35" />
+            </svg>
           </motion.div>
-          {/* Globe highlight */}
-          <div className="absolute top-1 left-2 w-4 h-4 bg-white/20 rounded-full blur-sm" />
-        </motion.div>
-        {/* Globe stand */}
-        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-2 bg-foreground/30 rounded-full" />
-        <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-4 h-2 bg-foreground/20 rounded-b" />
+          
+          {/* Globe highlight/shine */}
+          <div className="absolute top-2 left-3 w-5 h-5 bg-white/15 rounded-full blur-sm" />
+        </div>
+        
+        {/* Globe stand - arc holder */}
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-20 border-2 border-foreground/25 rounded-full border-t-0" style={{ clipPath: 'polygon(0 50%, 100% 50%, 100% 100%, 0 100%)' }} />
+        
+        {/* Base */}
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-10 h-2 bg-foreground/30 rounded-full" />
+        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-6 h-1.5 bg-foreground/25 rounded-b" />
       </div>
       <motion.div
-        className="mt-4 text-sm text-muted-foreground font-handwritten"
+        className="mt-2 text-sm text-muted-foreground font-handwritten"
         animate={{ opacity: [0.5, 1, 0.5] }}
         transition={{ duration: 1.5, repeat: Infinity }}
       >
@@ -166,44 +188,51 @@ function BoilingPotAnimation() {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="relative">
-        {/* Pot body */}
-        <div className="w-16 h-10 bg-foreground/25 rounded-b-2xl border-4 border-foreground/40 relative overflow-hidden">
-          {/* Bubbling water inside */}
-          <motion.div
-            className="absolute bottom-0 left-1 w-2 h-2 bg-foreground/20 rounded-full"
-            animate={{ y: [0, -6], opacity: [0.8, 0], scale: [1, 0.5] }}
-            transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
-          />
-          <motion.div
-            className="absolute bottom-0 left-4 w-1.5 h-1.5 bg-foreground/20 rounded-full"
-            animate={{ y: [0, -5], opacity: [0.8, 0], scale: [1, 0.5] }}
-            transition={{ duration: 0.5, repeat: Infinity, delay: 0.2 }}
-          />
-          <motion.div
-            className="absolute bottom-0 right-3 w-2 h-2 bg-foreground/20 rounded-full"
-            animate={{ y: [0, -6], opacity: [0.8, 0], scale: [1, 0.5] }}
-            transition={{ duration: 0.7, repeat: Infinity, delay: 0.35 }}
-          />
+        {/* Pot body - taller cylindrical shape with flat bottom */}
+        <div className="relative w-20 h-14">
+          {/* Pot rim (top ellipse) */}
+          <div className="absolute top-0 left-0 w-20 h-3 bg-foreground/35 rounded-[50%] border-2 border-foreground/50 z-10" />
+          {/* Pot body - cylindrical */}
+          <div className="absolute top-1.5 left-0 w-20 h-12 bg-foreground/25 border-x-4 border-b-4 border-foreground/40 rounded-b-lg overflow-hidden">
+            {/* Water surface */}
+            <div className="absolute top-0 left-1 right-1 h-2 bg-foreground/15 rounded-b-full" />
+            {/* Bubbling water inside */}
+            <motion.div
+              className="absolute bottom-1 left-2 w-2.5 h-2.5 bg-foreground/25 rounded-full"
+              animate={{ y: [0, -8], opacity: [0.9, 0], scale: [1, 0.4] }}
+              transition={{ duration: 0.7, repeat: Infinity, delay: 0 }}
+            />
+            <motion.div
+              className="absolute bottom-1 left-6 w-2 h-2 bg-foreground/25 rounded-full"
+              animate={{ y: [0, -7], opacity: [0.9, 0], scale: [1, 0.4] }}
+              transition={{ duration: 0.55, repeat: Infinity, delay: 0.25 }}
+            />
+            <motion.div
+              className="absolute bottom-1 right-3 w-2.5 h-2.5 bg-foreground/25 rounded-full"
+              animate={{ y: [0, -8], opacity: [0.9, 0], scale: [1, 0.4] }}
+              transition={{ duration: 0.65, repeat: Infinity, delay: 0.4 }}
+            />
+          </div>
         </div>
-        {/* Pot handles */}
-        <div className="absolute top-1 -left-2 w-2 h-3 border-2 border-foreground/40 rounded-l-full" />
-        <div className="absolute top-1 -right-2 w-2 h-3 border-2 border-foreground/40 rounded-r-full" />
+        {/* Pot handles - positioned lower on the sides */}
+        <div className="absolute top-5 -left-2.5 w-2.5 h-4 border-2 border-foreground/45 rounded-l-full bg-foreground/10" />
+        <div className="absolute top-5 -right-2.5 w-2.5 h-4 border-2 border-foreground/45 rounded-r-full bg-foreground/10" />
         {/* Steam rising - wispy curved steam */}
-        <div className="absolute -top-8 left-0 right-0 flex justify-center gap-2">
+        <div className="absolute -top-10 left-0 right-0 flex justify-center gap-3">
           <motion.div
-            className="w-1.5 h-6 bg-foreground/15 rounded-full blur-[1px]"
-            animate={{ y: [0, -12], x: [-2, 2], opacity: [0.6, 0], scale: [1, 1.5] }}
-            transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
+            className="w-2 h-8 bg-foreground/12 rounded-full blur-[2px]"
+            animate={{ y: [0, -14], x: [-3, 3], opacity: [0.5, 0], scale: [1, 1.6] }}
+            transition={{ duration: 1.3, repeat: Infinity, delay: 0 }}
           />
           <motion.div
-            className="w-2 h-8 bg-foreground/15 rounded-full blur-[1px]"
-            animate={{ y: [0, -14], x: [1, -1], opacity: [0.7, 0], scale: [1, 1.8] }}
-            transition={{ duration: 1.4, repeat: Infinity, delay: 0.3 }}
+            className="w-2.5 h-10 bg-foreground/12 rounded-full blur-[2px]"
+            animate={{ y: [0, -16], x: [2, -2], opacity: [0.6, 0], scale: [1, 2] }}
+            transition={{ duration: 1.5, repeat: Infinity, delay: 0.35 }}
           />
           <motion.div
-            className="w-1.5 h-6 bg-foreground/15 rounded-full blur-[1px]"
-            animate={{ y: [0, -11], x: [2, -2], opacity: [0.6, 0], scale: [1, 1.4] }}
-            transition={{ duration: 1.1, repeat: Infinity, delay: 0.6 }}
+            className="w-2 h-8 bg-foreground/12 rounded-full blur-[2px]"
+            animate={{ y: [0, -13], x: [3, -3], opacity: [0.5, 0], scale: [1, 1.5] }}
+            transition={{ duration: 1.2, repeat: Infinity, delay: 0.7 }}
           />
         </div>
       </div>
@@ -221,54 +250,60 @@ function BoilingPotAnimation() {
 function WhaleBreachAnimation() {
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="relative w-24 h-20 overflow-hidden">
-        {/* Ocean water */}
+      <div className="relative w-28 h-24 overflow-hidden">
+        {/* Ocean water surface line */}
+        <div className="absolute bottom-4 w-full h-0.5 bg-foreground/30" />
         <motion.div
-          className="absolute bottom-0 w-full h-4 bg-foreground/20 rounded"
-          animate={{ scaleY: [1, 1.3, 1] }}
-          transition={{ duration: 0.8, repeat: Infinity }}
+          className="absolute bottom-0 w-full h-4 bg-foreground/15"
+          animate={{ scaleY: [1, 1.2, 1] }}
+          transition={{ duration: 1, repeat: Infinity }}
         />
         
-        {/* Whale body breaching */}
+        {/* Whale body breaching - SVG for better whale shape */}
         <motion.div
           className="absolute left-1/2 -translate-x-1/2"
           animate={{ 
-            y: [24, -4, 24],
-            rotate: [20, -10, 20]
+            y: [28, -2, 28],
+            rotate: [25, -15, 25]
           }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          {/* Whale body - curved shape */}
-          <div className="relative">
-            <div className="w-10 h-6 bg-foreground/40 rounded-l-full rounded-r-2xl" />
-            {/* Whale tail */}
-            <div className="absolute -right-3 top-1 w-4 h-4 bg-foreground/40 rounded-full transform rotate-45" />
-            {/* Whale belly (lighter) */}
-            <div className="absolute bottom-0 left-1 w-7 h-2 bg-foreground/20 rounded-full" />
-          </div>
+          <svg width="48" height="36" viewBox="0 0 48 36" className="overflow-visible">
+            {/* Main whale body */}
+            <ellipse cx="20" cy="18" rx="18" ry="10" className="fill-foreground/45" />
+            {/* Whale head (rounded front) */}
+            <ellipse cx="6" cy="16" rx="8" ry="8" className="fill-foreground/45" />
+            {/* Whale tail flukes */}
+            <path d="M38 14 Q46 8 48 12 Q44 16 38 18 Q44 20 48 24 Q46 28 38 22 Z" className="fill-foreground/45" />
+            {/* Dorsal fin */}
+            <path d="M24 8 Q26 2 30 6 Q28 10 24 12 Z" className="fill-foreground/50" />
+            {/* Flipper/pectoral fin */}
+            <ellipse cx="14" cy="24" rx="5" ry="2" className="fill-foreground/40" transform="rotate(-20 14 24)" />
+            {/* Belly (lighter) */}
+            <ellipse cx="16" cy="22" rx="12" ry="4" className="fill-foreground/20" />
+            {/* Eye */}
+            <circle cx="4" cy="14" r="1.5" className="fill-foreground/70" />
+            {/* Mouth line */}
+            <path d="M0 18 Q4 20 8 18" className="stroke-foreground/50 fill-none" strokeWidth="0.8" />
+          </svg>
         </motion.div>
         
-        {/* Splash droplets */}
+        {/* Splash droplets - synced with whale peak */}
         <motion.div
-          className="absolute bottom-3 left-1/2 -translate-x-1/2"
-          animate={{ opacity: [0, 1, 0] }}
-          transition={{ duration: 2, repeat: Infinity, times: [0.3, 0.5, 0.7] }}
+          className="absolute bottom-4 left-1/2 -translate-x-1/2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 0, 1, 1, 0] }}
+          transition={{ duration: 2.2, repeat: Infinity, times: [0, 0.2, 0.35, 0.5, 0.65] }}
         >
-          <motion.div
-            className="absolute -left-4 w-1.5 h-3 bg-foreground/30 rounded-full"
-            animate={{ y: [0, -8], x: [-2, -4], opacity: [1, 0] }}
-            transition={{ duration: 0.6, repeat: Infinity, delay: 0.5 }}
-          />
-          <motion.div
-            className="absolute left-0 w-2 h-4 bg-foreground/30 rounded-full"
-            animate={{ y: [0, -10], opacity: [1, 0] }}
-            transition={{ duration: 0.7, repeat: Infinity, delay: 0.5 }}
-          />
-          <motion.div
-            className="absolute left-4 w-1.5 h-3 bg-foreground/30 rounded-full"
-            animate={{ y: [0, -8], x: [2, 4], opacity: [1, 0] }}
-            transition={{ duration: 0.6, repeat: Infinity, delay: 0.5 }}
-          />
+          {[-6, -3, 0, 3, 6].map((offset, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1.5 h-3 bg-foreground/35 rounded-full"
+              style={{ left: offset }}
+              animate={{ y: [0, -12 - i * 2], opacity: [1, 0] }}
+              transition={{ duration: 0.5, repeat: Infinity, delay: 0.35 + i * 0.05 }}
+            />
+          ))}
         </motion.div>
       </div>
       <motion.div
@@ -373,6 +408,47 @@ function LoadingAnimation({ category }: { category: Category }) {
   }
 }
 
+// Static dice icon component for homepage tile - shows two dice with dots
+function DiceIcon({ className }: { className?: string }) {
+  // Dice face configurations (dot positions for 1-6 on a 3x3 grid)
+  const diceFaces: Record<number, [number, number][]> = {
+    1: [[1, 1]],
+    2: [[0, 0], [2, 2]],
+    3: [[0, 0], [1, 1], [2, 2]],
+    4: [[0, 0], [0, 2], [2, 0], [2, 2]],
+    5: [[0, 0], [0, 2], [1, 1], [2, 0], [2, 2]],
+    6: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2]],
+  };
+
+  const renderDice = (value: number, rotation: number) => (
+    <div 
+      className="relative w-10 h-10 sm:w-12 sm:h-12 bg-foreground/10 border-2 border-foreground/35 rounded-lg"
+      style={{ transform: `rotate(${rotation}deg)` }}
+    >
+      <div className="absolute inset-1 grid grid-cols-3 grid-rows-3 gap-0.5">
+        {[0, 1, 2].map((row) =>
+          [0, 1, 2].map((col) => {
+            const showDot = diceFaces[value].some(([r, c]) => r === row && c === col);
+            return (
+              <div
+                key={`${row}-${col}`}
+                className={`w-full h-full rounded-full ${showDot ? 'bg-foreground/60' : 'bg-transparent'}`}
+              />
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className={`flex gap-2 ${className || ''}`}>
+      {renderDice(5, -8)}
+      {renderDice(3, 12)}
+    </div>
+  );
+}
+
 export default function LandingPage({ memories, onCategorySelect, onRandomMemory }: LandingPageProps) {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -450,12 +526,16 @@ export default function LandingPage({ memories, onCategorySelect, onRandomMemory
               className="aspect-square rounded-2xl bg-card border-2 border-border shadow-lg flex flex-col items-center justify-center gap-2 sm:gap-3 hover-elevate cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed p-4"
               data-testid={`button-category-${category.id}`}
             >
-              <img
-                src={category.image}
-                alt={category.label}
-                className="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain"
-                style={{ filter: 'grayscale(100%)' }}
-              />
+              {category.id === 'random' ? (
+                <DiceIcon className="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 items-center justify-center" />
+              ) : (
+                <img
+                  src={category.image}
+                  alt={category.label}
+                  className="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain"
+                  style={{ filter: 'grayscale(100%)' }}
+                />
+              )}
               <span className="text-base sm:text-lg md:text-xl font-handwritten text-foreground/80">{category.label}</span>
             </motion.button>
           ))}
