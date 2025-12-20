@@ -1,5 +1,47 @@
 # Our Journey - Release Notes
 
+## Version 1.1.0 - Cloud Storage Integration
+**Release Date:** 20 December 2025
+
+---
+
+### Overview
+
+This update adds persistent cloud storage integration to ensure memories and media files are available in production deployments.
+
+---
+
+### New Features
+
+#### Cloud Storage Integration
+- **Dual-Write Pattern**: All uploads now save to both local storage (for development) and cloud storage (for production)
+- **Automatic Cloud Sync**: New uploads are immediately available in production without manual migration
+- **Cloud-First Reads**: Production serves files from cloud storage first, with local fallback
+- **Buffer-Based Validation**: Memory files are validated directly from upload buffer for improved reliability
+
+#### Admin Panel Enhancements
+- **Cloud Storage Status Section**: New panel showing cloud vs local file counts
+- **Migration Button**: One-click migration of existing local files to cloud storage
+- **Sync Status Indicator**: Visual confirmation of files synced to cloud
+- **Migration Warning**: Alert when local files haven't been synced to cloud
+
+---
+
+### Technical Improvements
+- Removed local file dependency for memory validation
+- Cloud upload failures now return proper error responses for retry handling
+- HEIC conversion completes before cloud upload for consistency
+
+---
+
+### Upgrade Notes
+- Existing local files can be migrated using the "Migrate to Cloud Storage" button in the Admin panel
+- New uploads require no additional action—they sync automatically
+
+---
+
+---
+
 ## Version 1.0.0 - Initial Release
 **Release Date:** 20 December 2025
 

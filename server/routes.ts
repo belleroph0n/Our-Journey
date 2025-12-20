@@ -127,6 +127,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ success: false, error: 'No file uploaded' });
       }
 
+      // Parse and validate from buffer directly (no local file dependency)
+      const memories = parseMemoriesBuffer(req.file.buffer, req.file.originalname);
+      
       // Save to local storage
       saveMemoriesFile(req.file.buffer, req.file.originalname);
       
@@ -137,16 +140,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('Memories file also uploaded to cloud storage');
         } catch (cloudError) {
           console.error('Failed to upload memories to cloud storage:', cloudError);
+          return res.status(500).json({ 
+            success: false, 
+            error: 'Failed to upload memories to cloud storage. Please try again.' 
+          });
         }
       }
-      
-      // Parse the file to validate it
-      const memoriesPath = getMemoriesFilePath();
-      if (!memoriesPath) {
-        return res.status(500).json({ success: false, error: 'Failed to save file' });
-      }
-
-      const memories = parseMemoriesFile(memoriesPath);
       
       res.json({ 
         success: true, 
