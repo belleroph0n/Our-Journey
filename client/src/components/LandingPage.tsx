@@ -250,7 +250,7 @@ function BoilingPotAnimation() {
 function WhaleTailAnimation() {
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="relative w-32 h-24">
+      <div className="relative w-36 h-28">
         {/* Ocean water */}
         <div className="absolute bottom-0 w-full h-6 bg-foreground/15 rounded-t-lg" />
         {/* Water surface line */}
@@ -262,7 +262,7 @@ function WhaleTailAnimation() {
           style={{ originY: 1 }}
           animate={{ 
             rotate: [-60, 30, 30, -60],
-            y: [10, -20, -20, 10]
+            y: [10, -24, -24, 10]
           }}
           transition={{ 
             duration: 2,
@@ -271,27 +271,27 @@ function WhaleTailAnimation() {
             ease: 'easeInOut'
           }}
         >
-          <svg width="48" height="40" viewBox="0 0 48 40" className="overflow-visible">
-            {/* Tail stalk/body part going into water */}
+          <svg width="64" height="48" viewBox="0 0 64 48" className="overflow-visible">
+            {/* Tail stalk/body part going into water - wider and more solid */}
             <path 
-              d="M20 40 Q22 30 24 25 Q26 30 28 40" 
-              className="fill-foreground/40" 
+              d="M26 48 Q28 38 32 30 Q36 38 38 48 Z" 
+              className="fill-foreground/70" 
             />
-            {/* Left fluke */}
+            {/* Left fluke - wider, more solid filled shape */}
             <path 
-              d="M24 25 Q14 20 6 8 Q10 12 16 14 Q12 18 24 25" 
-              className="fill-foreground/45" 
+              d="M32 30 Q20 26 4 6 Q8 14 14 18 Q8 22 18 28 Q24 30 32 30 Z" 
+              className="fill-foreground/70" 
             />
-            {/* Right fluke */}
+            {/* Right fluke - wider, more solid filled shape */}
             <path 
-              d="M24 25 Q34 20 42 8 Q38 12 32 14 Q36 18 24 25" 
-              className="fill-foreground/45" 
+              d="M32 30 Q44 26 60 6 Q56 14 50 18 Q56 22 46 28 Q40 30 32 30 Z" 
+              className="fill-foreground/70" 
             />
             {/* Center ridge detail */}
             <path 
-              d="M24 25 L24 15" 
-              className="stroke-foreground/30" 
-              strokeWidth="1.5"
+              d="M32 30 L32 18" 
+              className="stroke-foreground/50" 
+              strokeWidth="2"
               strokeLinecap="round"
             />
           </svg>
@@ -303,31 +303,51 @@ function WhaleTailAnimation() {
           animate={{ opacity: [0, 0, 0, 1, 0] }}
           transition={{ duration: 2, repeat: Infinity, times: [0, 0.5, 0.75, 0.82, 1] }}
         >
-          {/* Splash droplets */}
-          {[-12, -6, 0, 6, 12].map((offset, i) => (
+          {/* Large splash droplets spraying high */}
+          {[-18, -10, -4, 4, 10, 18].map((offset, i) => (
             <motion.div
               key={i}
-              className="absolute w-2 h-4 bg-foreground/30 rounded-full"
+              className="absolute w-2.5 h-5 bg-foreground/40 rounded-full"
               style={{ left: offset }}
               animate={{ 
-                y: [0, -16 - Math.abs(offset) * 0.5], 
-                x: [0, offset * 0.3],
+                y: [0, -40 - Math.abs(offset) * 1.2], 
+                x: [0, offset * 0.6],
                 opacity: [1, 0],
-                scale: [1, 0.5]
+                scale: [1, 0.4]
               }}
               transition={{ 
-                duration: 0.4, 
+                duration: 0.6, 
                 repeat: Infinity, 
-                delay: 1.6 + i * 0.03,
-                repeatDelay: 1.6
+                delay: 1.6 + i * 0.04,
+                repeatDelay: 1.4
+              }}
+            />
+          ))}
+          {/* Smaller secondary droplets going even higher */}
+          {[-14, -7, 0, 7, 14].map((offset, i) => (
+            <motion.div
+              key={`small-${i}`}
+              className="absolute w-1.5 h-3 bg-foreground/30 rounded-full"
+              style={{ left: offset }}
+              animate={{ 
+                y: [0, -55 - Math.abs(offset) * 0.8], 
+                x: [0, offset * 0.5],
+                opacity: [1, 0],
+                scale: [1, 0.3]
+              }}
+              transition={{ 
+                duration: 0.7, 
+                repeat: Infinity, 
+                delay: 1.62 + i * 0.03,
+                repeatDelay: 1.3
               }}
             />
           ))}
           {/* Water ripple */}
           <motion.div
-            className="absolute -left-8 -right-8 h-1 bg-foreground/20 rounded-full"
-            animate={{ scaleX: [0.5, 1.5], opacity: [0.8, 0] }}
-            transition={{ duration: 0.5, repeat: Infinity, delay: 1.6, repeatDelay: 1.5 }}
+            className="absolute -left-12 -right-12 h-1.5 bg-foreground/25 rounded-full"
+            animate={{ scaleX: [0.5, 1.8], opacity: [0.8, 0] }}
+            transition={{ duration: 0.6, repeat: Infinity, delay: 1.6, repeatDelay: 1.4 }}
           />
         </motion.div>
       </div>
