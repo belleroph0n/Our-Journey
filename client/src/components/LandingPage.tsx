@@ -247,63 +247,88 @@ function BoilingPotAnimation() {
   );
 }
 
-function WhaleBreachAnimation() {
+function WhaleTailAnimation() {
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="relative w-28 h-24 overflow-hidden">
-        {/* Ocean water surface line */}
-        <div className="absolute bottom-4 w-full h-0.5 bg-foreground/30" />
-        <motion.div
-          className="absolute bottom-0 w-full h-4 bg-foreground/15"
-          animate={{ scaleY: [1, 1.2, 1] }}
-          transition={{ duration: 1, repeat: Infinity }}
-        />
+      <div className="relative w-32 h-24">
+        {/* Ocean water */}
+        <div className="absolute bottom-0 w-full h-6 bg-foreground/15 rounded-t-lg" />
+        {/* Water surface line */}
+        <div className="absolute bottom-6 w-full h-0.5 bg-foreground/25" />
         
-        {/* Whale body breaching - SVG for better whale shape */}
+        {/* Whale tail emerging, pausing, then slapping down */}
         <motion.div
-          className="absolute left-1/2 -translate-x-1/2"
+          className="absolute left-1/2 -translate-x-1/2 bottom-4"
+          style={{ originY: 1 }}
           animate={{ 
-            y: [28, -2, 28],
-            rotate: [25, -15, 25]
+            rotate: [-60, 30, 30, -60],
+            y: [10, -20, -20, 10]
           }}
-          transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ 
+            duration: 2,
+            repeat: Infinity,
+            times: [0, 0.3, 0.5, 0.8],
+            ease: 'easeInOut'
+          }}
         >
-          <svg width="48" height="36" viewBox="0 0 48 36" className="overflow-visible">
-            {/* Main whale body */}
-            <ellipse cx="20" cy="18" rx="18" ry="10" className="fill-foreground/45" />
-            {/* Whale head (rounded front) */}
-            <ellipse cx="6" cy="16" rx="8" ry="8" className="fill-foreground/45" />
-            {/* Whale tail flukes */}
-            <path d="M38 14 Q46 8 48 12 Q44 16 38 18 Q44 20 48 24 Q46 28 38 22 Z" className="fill-foreground/45" />
-            {/* Dorsal fin */}
-            <path d="M24 8 Q26 2 30 6 Q28 10 24 12 Z" className="fill-foreground/50" />
-            {/* Flipper/pectoral fin */}
-            <ellipse cx="14" cy="24" rx="5" ry="2" className="fill-foreground/40" transform="rotate(-20 14 24)" />
-            {/* Belly (lighter) */}
-            <ellipse cx="16" cy="22" rx="12" ry="4" className="fill-foreground/20" />
-            {/* Eye */}
-            <circle cx="4" cy="14" r="1.5" className="fill-foreground/70" />
-            {/* Mouth line */}
-            <path d="M0 18 Q4 20 8 18" className="stroke-foreground/50 fill-none" strokeWidth="0.8" />
+          <svg width="48" height="40" viewBox="0 0 48 40" className="overflow-visible">
+            {/* Tail stalk/body part going into water */}
+            <path 
+              d="M20 40 Q22 30 24 25 Q26 30 28 40" 
+              className="fill-foreground/40" 
+            />
+            {/* Left fluke */}
+            <path 
+              d="M24 25 Q14 20 6 8 Q10 12 16 14 Q12 18 24 25" 
+              className="fill-foreground/45" 
+            />
+            {/* Right fluke */}
+            <path 
+              d="M24 25 Q34 20 42 8 Q38 12 32 14 Q36 18 24 25" 
+              className="fill-foreground/45" 
+            />
+            {/* Center ridge detail */}
+            <path 
+              d="M24 25 L24 15" 
+              className="stroke-foreground/30" 
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
           </svg>
         </motion.div>
         
-        {/* Splash droplets - synced with whale peak */}
+        {/* Splash on impact - triggers when tail hits water */}
         <motion.div
-          className="absolute bottom-4 left-1/2 -translate-x-1/2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 0, 1, 1, 0] }}
-          transition={{ duration: 2.2, repeat: Infinity, times: [0, 0.2, 0.35, 0.5, 0.65] }}
+          className="absolute bottom-5 left-1/2 -translate-x-1/2"
+          animate={{ opacity: [0, 0, 0, 1, 0] }}
+          transition={{ duration: 2, repeat: Infinity, times: [0, 0.5, 0.75, 0.82, 1] }}
         >
-          {[-6, -3, 0, 3, 6].map((offset, i) => (
+          {/* Splash droplets */}
+          {[-12, -6, 0, 6, 12].map((offset, i) => (
             <motion.div
               key={i}
-              className="absolute w-1.5 h-3 bg-foreground/35 rounded-full"
+              className="absolute w-2 h-4 bg-foreground/30 rounded-full"
               style={{ left: offset }}
-              animate={{ y: [0, -12 - i * 2], opacity: [1, 0] }}
-              transition={{ duration: 0.5, repeat: Infinity, delay: 0.35 + i * 0.05 }}
+              animate={{ 
+                y: [0, -16 - Math.abs(offset) * 0.5], 
+                x: [0, offset * 0.3],
+                opacity: [1, 0],
+                scale: [1, 0.5]
+              }}
+              transition={{ 
+                duration: 0.4, 
+                repeat: Infinity, 
+                delay: 1.6 + i * 0.03,
+                repeatDelay: 1.6
+              }}
             />
           ))}
+          {/* Water ripple */}
+          <motion.div
+            className="absolute -left-8 -right-8 h-1 bg-foreground/20 rounded-full"
+            animate={{ scaleX: [0.5, 1.5], opacity: [0.8, 0] }}
+            transition={{ duration: 0.5, repeat: Infinity, delay: 1.6, repeatDelay: 1.5 }}
+          />
         </motion.div>
       </div>
       <motion.div
@@ -402,7 +427,7 @@ function LoadingAnimation({ category }: { category: Category }) {
     case 'food':
       return <BoilingPotAnimation />;
     case 'event':
-      return <WhaleBreachAnimation />;
+      return <WhaleTailAnimation />;
     case 'random':
       return <RollingDiceAnimation />;
   }
