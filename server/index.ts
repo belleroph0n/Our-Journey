@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { isGoogleDriveConfigured, testDriveConnection } from "./google-drive";
 
 const app = express();
 
@@ -106,7 +107,23 @@ app.use((req, res, next) => {
     port,
     host: "0.0.0.0",
     reusePort: true,
-  }, () => {
+  }, async () => {
     log(`serving on port ${port}`);
+    
+    // Test Google Drive connection on startup
+    if (isGoogleDriveConfigured()) {
+      log('Testing Google Drive connection...');
+      const result = await testDriveConnection();
+      if (result.success) {
+        log(`Google Drive connected successfully! Found ${result.fileCount} files.`);
+        if (result.files && result.files.length > 0) {
+          log(`Sample files: ${result.files.slice(0, 5).join(', ')}`);
+        }
+      } else {
+        log(`Google Drive connection failed: ${result.error}`);
+      }
+    } else {
+      log('Google Drive not configured - using local/cloud storage');
+    }
   });
 })();

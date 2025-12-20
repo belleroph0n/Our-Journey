@@ -24,6 +24,16 @@ import {
   getMemoriesFileFromCloud,
   migrateLocalFilesToCloud
 } from "./cloud-storage";
+import {
+  isGoogleDriveConfigured,
+  testDriveConnection,
+  listDriveFiles,
+  findMemoriesFile,
+  getMediaFiles,
+  downloadFile,
+  streamFile,
+  getFileByName
+} from "./google-drive";
 
 // Convert HEIC buffer to JPEG buffer
 async function convertHeicToJpeg(buffer: Buffer): Promise<Buffer> {
@@ -446,6 +456,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false, 
         error: error.message || 'Failed to migrate to cloud storage' 
+      });
+    }
+  });
+
+  // Test Google Drive connection (requires authentication)
+  app.get("/api/google-drive/test", requireAuth, async (req, res) => {
+    try {
+      if (!isGoogleDriveConfigured()) {
+        return res.json({ 
+          success: false, 
+          configured: false,
+          error: 'Google Drive is not configured. Please add GOOGLE_DRIVE_FOLDER_ID and GOOGLE_SERVICE_ACCOUNT_KEY secrets.' 
+        });
+      }
+
+      const result = await testDriveConnection();
+      res.json({ 
+        configured: true,
+        ...result
+      });
+    } catch (error: any) {
+      console.error("Error testing Google Drive connection:", error);
+      res.status(500).json({ 
+        success: false, 
+        configured: true,
+        error: error.message || 'Failed to test Google Drive connection' 
       });
     }
   });
