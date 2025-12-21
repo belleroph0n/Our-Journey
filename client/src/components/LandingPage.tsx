@@ -247,116 +247,86 @@ function BoilingPotAnimation() {
   );
 }
 
-function WhaleTailAnimation() {
+function SunriseAnimation() {
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="relative w-36 h-28">
-        {/* Ocean water */}
-        <div className="absolute bottom-0 w-full h-6 bg-foreground/15 rounded-t-lg" />
-        {/* Water surface line */}
-        <div className="absolute bottom-6 w-full h-0.5 bg-foreground/25" />
-        
-        {/* Whale tail emerging, pausing, then slapping down */}
+      <div className="relative w-40 h-28 overflow-hidden">
+        {/* Sky gradient that lightens as sun rises */}
         <motion.div
-          className="absolute left-1/2 -translate-x-1/2 bottom-4"
-          style={{ originY: 1 }}
+          className="absolute inset-0 rounded-t-lg"
           animate={{ 
-            rotate: [-60, 30, 30, -60],
-            y: [10, -24, -24, 10]
+            background: [
+              'linear-gradient(to top, hsl(var(--foreground) / 0.08), hsl(var(--foreground) / 0.02))',
+              'linear-gradient(to top, hsl(var(--foreground) / 0.15), hsl(var(--foreground) / 0.05))'
+            ]
           }}
+          transition={{ duration: 3, repeat: Infinity, repeatType: 'reverse' }}
+        />
+        
+        {/* Sun rising */}
+        <motion.div
+          className="absolute left-1/2 -translate-x-1/2"
+          animate={{ y: [60, 20, 20, 60] }}
           transition={{ 
-            duration: 2,
+            duration: 4,
             repeat: Infinity,
-            times: [0, 0.3, 0.5, 0.8],
+            times: [0, 0.4, 0.6, 1],
             ease: 'easeInOut'
           }}
         >
-          <svg width="64" height="48" viewBox="0 0 64 48" className="overflow-visible">
-            {/* Tail stalk/body part going into water - wider and more solid */}
-            <path 
-              d="M26 48 Q28 38 32 30 Q36 38 38 48 Z" 
-              className="fill-foreground/70" 
+          {/* Sun glow */}
+          <motion.div
+            className="absolute w-16 h-16 rounded-full -left-8 -top-8"
+            style={{ background: 'radial-gradient(circle, hsl(var(--foreground) / 0.15), transparent 70%)' }}
+            animate={{ scale: [1, 1.3, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+          {/* Sun body */}
+          <div className="w-10 h-10 rounded-full bg-foreground/40 -ml-5 -mt-5" />
+          {/* Sun rays */}
+          {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+            <motion.div
+              key={angle}
+              className="absolute w-0.5 h-3 bg-foreground/30 rounded-full"
+              style={{
+                left: '50%',
+                top: '50%',
+                marginLeft: '-1px',
+                marginTop: '-1px',
+                transformOrigin: 'center 20px',
+                transform: `rotate(${angle}deg) translateY(-20px)`
+              }}
+              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 1.5, repeat: Infinity, delay: angle / 360 }}
             />
-            {/* Left fluke - wider, more solid filled shape */}
-            <path 
-              d="M32 30 Q20 26 4 6 Q8 14 14 18 Q8 22 18 28 Q24 30 32 30 Z" 
-              className="fill-foreground/70" 
-            />
-            {/* Right fluke - wider, more solid filled shape */}
-            <path 
-              d="M32 30 Q44 26 60 6 Q56 14 50 18 Q56 22 46 28 Q40 30 32 30 Z" 
-              className="fill-foreground/70" 
-            />
-            {/* Center ridge detail */}
-            <path 
-              d="M32 30 L32 18" 
-              className="stroke-foreground/50" 
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
+          ))}
         </motion.div>
         
-        {/* Splash on impact - triggers when tail hits water */}
-        <motion.div
-          className="absolute bottom-5 left-1/2 -translate-x-1/2"
-          animate={{ opacity: [0, 0, 0, 1, 0] }}
-          transition={{ duration: 2, repeat: Infinity, times: [0, 0.5, 0.75, 0.82, 1] }}
-        >
-          {/* Large splash droplets spraying high */}
-          {[-18, -10, -4, 4, 10, 18].map((offset, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-2.5 h-5 bg-foreground/40 rounded-full"
-              style={{ left: offset }}
-              animate={{ 
-                y: [0, -40 - Math.abs(offset) * 1.2], 
-                x: [0, offset * 0.6],
-                opacity: [1, 0],
-                scale: [1, 0.4]
-              }}
-              transition={{ 
-                duration: 0.6, 
-                repeat: Infinity, 
-                delay: 1.6 + i * 0.04,
-                repeatDelay: 1.4
-              }}
-            />
-          ))}
-          {/* Smaller secondary droplets going even higher */}
-          {[-14, -7, 0, 7, 14].map((offset, i) => (
-            <motion.div
-              key={`small-${i}`}
-              className="absolute w-1.5 h-3 bg-foreground/30 rounded-full"
-              style={{ left: offset }}
-              animate={{ 
-                y: [0, -55 - Math.abs(offset) * 0.8], 
-                x: [0, offset * 0.5],
-                opacity: [1, 0],
-                scale: [1, 0.3]
-              }}
-              transition={{ 
-                duration: 0.7, 
-                repeat: Infinity, 
-                delay: 1.62 + i * 0.03,
-                repeatDelay: 1.3
-              }}
-            />
-          ))}
-          {/* Water ripple */}
-          <motion.div
-            className="absolute -left-12 -right-12 h-1.5 bg-foreground/25 rounded-full"
-            animate={{ scaleX: [0.5, 1.8], opacity: [0.8, 0] }}
-            transition={{ duration: 0.6, repeat: Infinity, delay: 1.6, repeatDelay: 1.4 }}
+        {/* Hills silhouette - foreground */}
+        <svg className="absolute bottom-0 w-full h-16" viewBox="0 0 160 64" preserveAspectRatio="none">
+          {/* Back hill */}
+          <path 
+            d="M-10 64 Q30 20 80 35 Q130 50 170 64 Z" 
+            className="fill-foreground/25"
           />
-        </motion.div>
+          {/* Front hill left */}
+          <path 
+            d="M-10 64 Q20 30 60 45 Q80 50 90 64 Z" 
+            className="fill-foreground/35"
+          />
+          {/* Front hill right */}
+          <path 
+            d="M70 64 Q100 35 140 40 Q160 45 170 64 Z" 
+            className="fill-foreground/35"
+          />
+        </svg>
       </div>
       <motion.div
-        className="mt-2 text-sm text-muted-foreground font-handwritten"
+        className="mt-3 text-sm text-muted-foreground font-handwritten text-center"
         animate={{ opacity: [0.5, 1, 0.5] }}
         transition={{ duration: 1.5, repeat: Infinity }}
       >
-        Making a splash...
+        Shining a light on our memorable events...
       </motion.div>
     </div>
   );
@@ -447,7 +417,7 @@ function LoadingAnimation({ category }: { category: Category }) {
     case 'food':
       return <BoilingPotAnimation />;
     case 'event':
-      return <WhaleTailAnimation />;
+      return <SunriseAnimation />;
     case 'random':
       return <RollingDiceAnimation />;
   }
