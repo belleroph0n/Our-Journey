@@ -113,7 +113,7 @@ export default function FilteredMemoriesPage({
               No memories found
             </h2>
             <p className="text-sm text-muted-foreground font-mono">
-              No entries with the "{category}" tag yet
+              No entries with the "{category}" category yet
             </p>
           </motion.div>
         ) : (
