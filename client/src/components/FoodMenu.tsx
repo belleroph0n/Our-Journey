@@ -94,9 +94,10 @@ export default function FoodMenu({ memories, onMenuItemSelect, onBack }: FoodMen
         data-testid="food-menu-container"
       >
         <div 
-          className="bg-muted/40 border border-foreground/20 shadow-xl px-7 sm:px-10 md:px-12 lg:px-14 py-8 sm:py-10 md:py-12"
+          className="bg-muted/40 border border-foreground/20 shadow-xl px-8 sm:px-12 md:px-14 lg:px-16 py-6 sm:py-8 md:py-10 flex flex-col justify-center"
           style={{
             background: 'linear-gradient(to bottom, hsl(var(--muted) / 0.5), hsl(var(--muted) / 0.3))',
+            aspectRatio: '1 / 1.414',
           }}
         >
           <h1 
