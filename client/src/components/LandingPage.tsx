@@ -511,7 +511,7 @@ export default function LandingPage({ memories, onCategorySelect, onRandomMemory
         }
       } else {
         const filteredMemories = memories.filter((m) =>
-          m.tags?.some((t) => t.toLowerCase() === category.tag.toLowerCase())
+          m.categories?.some((c: string) => c.toLowerCase() === category.tag.toLowerCase())
         );
         onCategorySelect(category.id, filteredMemories);
       }

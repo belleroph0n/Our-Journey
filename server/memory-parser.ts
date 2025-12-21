@@ -93,7 +93,10 @@ function convertRowToMemory(row: any): Memory {
   const photoFiles = row.photo_files || row.photoFiles || row.photos || '';
   const videoFiles = row.video_files || row.videoFiles || row.videos || '';
   const audioFiles = row.audio_files || row.audioFiles || row.audio || '';
-  const tags = row.tags || '';
+  // Support both 'categories' (new) and 'tags' (legacy) column names
+  const categories = row.categories || row.tags || '';
+  // New identifier column for sub-filtering within categories
+  const identifier = row.identifier || '';
 
   return {
     id: row.id?.toString() || '',
@@ -104,7 +107,8 @@ function convertRowToMemory(row: any): Memory {
     longitude: parseFloat(row.longitude) || 0,
     date: parseDate(row.date),
     description: row.description || '',
-    tags: tags ? tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [],
+    categories: categories ? categories.split(',').map((t: string) => t.trim()).filter(Boolean) : [],
+    identifier: identifier ? identifier.trim() : undefined,
     photoFiles: photoFiles ? photoFiles.split(',').map((f: string) => f.trim()).filter(Boolean) : [],
     videoFiles: videoFiles ? videoFiles.split(',').map((f: string) => f.trim()).filter(Boolean) : [],
     audioFiles: audioFiles ? audioFiles.split(',').map((f: string) => f.trim()).filter(Boolean) : [],
