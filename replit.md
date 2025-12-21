@@ -11,6 +11,7 @@
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Timezone: All dates, times, and logs should use New Zealand time (Pacific/Auckland, NZDT/NZST).
 
 ## System Architecture
 
