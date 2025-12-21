@@ -1,7 +1,7 @@
 # Our Journey - Release Notes
 
 ## Version 2.1.0 - Food Menu & Category Refinements
-**Release Date:** 21 December 2025
+**Release Date:** 21 December 2025 (NZDT)
 
 ---
 
@@ -67,7 +67,7 @@ If using the identifier feature, add a column named "identifier" to your spreads
 ---
 
 ## Version 2.0.0 - Performance & Polish
-**Release Date:** 20 December 2025
+**Release Date:** 20 December 2025 (NZDT)
 
 ---
 
@@ -102,7 +102,7 @@ Version 2.0 brings significant performance improvements to the memory viewing ex
 ---
 
 ## Version 1.3.0 - Google Drive Integration
-**Release Date:** 20 December 2025
+**Release Date:** 20 December 2025 (NZDT)
 
 ---
 
@@ -157,7 +157,7 @@ Two secrets must be configured:
 ---
 
 ## Version 1.2.0 - Production Session Fix
-**Release Date:** 20 December 2025
+**Release Date:** 20 December 2025 (NZDT)
 
 ---
 
@@ -185,7 +185,7 @@ This update fixes session persistence issues in production deployments, ensuring
 ---
 
 ## Version 1.1.0 - Cloud Storage Integration
-**Release Date:** 20 December 2025
+**Release Date:** 20 December 2025 (NZDT)
 
 ---
 
@@ -227,7 +227,7 @@ This update adds persistent cloud storage integration to ensure memories and med
 ---
 
 ## Version 1.0.0 - Initial Release
-**Release Date:** 20 December 2025
+**Release Date:** 20 December 2025 (NZDT)
 
 ---
 
