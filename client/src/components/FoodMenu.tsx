@@ -94,14 +94,14 @@ export default function FoodMenu({ memories, onMenuItemSelect, onBack }: FoodMen
         data-testid="food-menu-container"
       >
         <div 
-          className="bg-muted/40 border border-foreground/20 shadow-xl px-8 sm:px-12 md:px-14 lg:px-16 py-8 sm:py-10 md:py-12 flex flex-col"
+          className="bg-muted/40 border border-foreground/20 shadow-xl px-10 sm:px-14 md:px-16 lg:px-20 py-8 sm:py-10 md:py-12 flex flex-col"
           style={{
             background: 'linear-gradient(to bottom, hsl(var(--muted) / 0.5), hsl(var(--muted) / 0.3))',
             aspectRatio: '1 / 1.414',
           }}
         >
           <h1 
-            className="text-2xl sm:text-3xl md:text-4xl font-handwritten text-center mb-6 sm:mb-8 md:mb-10 italic tracking-wide underline decoration-foreground underline-offset-4"
+            className="text-2xl sm:text-3xl md:text-4xl font-handwritten text-center mb-7 sm:mb-10 md:mb-12 italic tracking-wide underline decoration-foreground underline-offset-4"
             data-testid="text-menu-title"
           >
             Menu
