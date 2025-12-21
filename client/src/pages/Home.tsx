@@ -5,9 +5,10 @@ import LandingPage from '@/components/LandingPage';
 import InteractiveMap from '@/components/InteractiveMap';
 import MemoryDetail from '@/components/MemoryDetail';
 import FilteredMemoriesPage from '@/components/FilteredMemoriesPage';
+import FoodMenu from '@/components/FoodMenu';
 import { Memory } from '@shared/schema';
 
-type ViewState = 'auth' | 'landing' | 'map' | 'filtered' | 'detail';
+type ViewState = 'auth' | 'landing' | 'map' | 'filtered' | 'detail' | 'food-menu';
 
 export default function Home() {
   const [viewState, setViewState] = useState<ViewState>('auth');
@@ -54,9 +55,16 @@ export default function Home() {
     setFilteredMemories(filtered);
     if (category === 'travel') {
       setViewState('map');
+    } else if (category === 'food') {
+      setViewState('food-menu');
     } else {
       setViewState('filtered');
     }
+  };
+
+  const handleFoodMenuSelect = (identifier: string | null, filtered: Memory[]) => {
+    setFilteredMemories(filtered);
+    setViewState('filtered');
   };
 
   const handleRandomMemory = (memory: Memory) => {
@@ -88,6 +96,12 @@ export default function Home() {
     console.log('Viewing memory on map:', memory.title);
     setSelectedMemory(memory);
     setViewState('map');
+  };
+
+  const handleBackToFoodMenu = () => {
+    console.log('Navigating back to food menu');
+    setSelectedMemory(null);
+    setViewState('food-menu');
   };
 
   if (isCheckingAuth) {
@@ -138,22 +152,39 @@ export default function Home() {
     );
   }
 
+  if (viewState === 'food-menu') {
+    const foodMemories = memories.filter(m => 
+      m.categories?.some(c => c.toLowerCase() === 'food')
+    );
+    return (
+      <FoodMenu
+        memories={foodMemories}
+        onMenuItemSelect={handleFoodMenuSelect}
+        onBack={handleBackToLanding}
+      />
+    );
+  }
+
   if (viewState === 'filtered') {
+    const backHandler = selectedCategory === 'food' ? handleBackToFoodMenu : handleBackToLanding;
     return (
       <FilteredMemoriesPage
         memories={filteredMemories}
         category={selectedCategory}
         onMemorySelect={handleMemorySelect}
-        onBack={handleBackToLanding}
+        onBack={backHandler}
         onHome={handleBackToLanding}
       />
     );
   }
 
   if (viewState === 'detail' && selectedMemory) {
-    const backHandler = selectedCategory && selectedCategory !== 'travel' && selectedCategory !== 'random'
-      ? handleBackToFiltered
-      : handleBackToLanding;
+    let backHandler = handleBackToLanding;
+    if (selectedCategory === 'food') {
+      backHandler = handleBackToFiltered;
+    } else if (selectedCategory && selectedCategory !== 'travel' && selectedCategory !== 'random') {
+      backHandler = handleBackToFiltered;
+    }
     
     return (
       <MemoryDetail
