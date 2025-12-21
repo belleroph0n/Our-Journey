@@ -1,5 +1,42 @@
 # Our Journey - Release Notes
 
+## Version 2.1.1 - Bug Fixes & Optimisations
+**Release Date:** 21 December 2025 (NZDT)
+
+---
+
+### Bug Fixes
+
+#### Category Filtering
+- **Fixed Property Mismatch**: Corrected `memory.tags` to `memory.categories` in InteractiveMap component
+- **Removed Problematic Fallback**: Fixed issue where all memories displayed instead of filtered results
+
+#### Visual Fixes
+- **Polaroid Borders**: All photo frames now consistently use pure white backgrounds
+- **Loading Placeholders**: White background during image loading to match Polaroid frame
+
+---
+
+### Improvements
+
+#### Date Formatting
+- **NZ Format**: All dates now display in DD/MM/YYYY format consistently
+
+#### Media Loading Optimisation
+- **Priority Loading**: First 3 photos load with high priority (`fetchPriority="high"`)
+- **Lazy Loading**: Remaining photos use native lazy loading (`loading="lazy"`)
+- **Async Decoding**: All images use `decoding="async"` for smoother rendering
+
+---
+
+### Documentation
+- **Pre-Publishing Checklist**: Added comprehensive review checklist to replit.md
+- Covers NZ English, date formats, media loading, visual consistency, and functionality checks
+
+---
+
+---
+
 ## Version 2.1.0 - Food Menu & Category Refinements
 **Release Date:** 21 December 2025 (NZDT)
 

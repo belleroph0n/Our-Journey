@@ -12,7 +12,11 @@ const formatDate = (dateString: string) => {
   if (isNaN(date.getTime())) {
     return dateString;
   }
-  return date.toLocaleDateString('en-NZ');
+  // Format as DD/MM/YYYY for NZ
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
 };
 
 interface FilteredMemoriesPageProps {

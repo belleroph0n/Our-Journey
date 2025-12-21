@@ -115,7 +115,7 @@ function LazyAudio({ src, index }: { src: string; index: number }) {
   );
 }
 
-function MediaImage({ src, alt, className, onClick }: { src: string; alt: string; className?: string; onClick?: () => void }) {
+function MediaImage({ src, alt, className, onClick, priority = false }: { src: string; alt: string; className?: string; onClick?: () => void; priority?: boolean }) {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -137,7 +137,7 @@ function MediaImage({ src, alt, className, onClick }: { src: string; alt: string
   return (
     <>
       {isLoading && (
-        <div className={`flex items-center justify-center bg-muted/30 ${className}`}>
+        <div className={`flex items-center justify-center bg-white ${className}`}>
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       )}
@@ -146,6 +146,9 @@ function MediaImage({ src, alt, className, onClick }: { src: string; alt: string
         alt={alt}
         className={`${className} ${isLoading ? 'hidden' : ''}`}
         onClick={onClick}
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : "auto"}
+        decoding="async"
         onLoad={() => setIsLoading(false)}
         onError={() => {
           setIsLoading(false);
@@ -179,11 +182,11 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
     if (isNaN(date.getTime())) {
       return dateString;
     }
-    return date.toLocaleDateString('en-NZ', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
+    // Format as DD/MM/YYYY for NZ
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   };
 
   const handleAudioToggle = (audioFile: string) => {
@@ -287,12 +290,13 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
                     transform: `rotate(${index % 3 === 0 ? -1 : index % 3 === 1 ? 1 : 0}deg)`,
                   }}
                 >
-                  <div className="bg-white dark:bg-gray-100 px-4 pt-4 pb-20 rounded-md shadow-lg hover-elevate active-elevate-2 transition-transform">
+                  <div className="bg-white px-4 pt-4 pb-20 rounded-md shadow-lg hover-elevate active-elevate-2 transition-transform">
                     <div className="aspect-square rounded-sm overflow-hidden">
                       <MediaImage
                         src={`/api/media/${photo}`}
                         alt={`Memory photo ${index + 1}`}
                         className="w-full h-full object-cover"
+                        priority={index < 3}
                       />
                     </div>
                   </div>

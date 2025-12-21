@@ -1,6 +1,6 @@
 # Our Journey - Interactive Memory Map
 
-**Version:** 2.1.0  
+**Version:** 2.1.1  
 **Release Date:** 21 December 2025 (NZDT)  
 **Custom Domain:** alexndan.com
 
@@ -83,3 +83,40 @@ Timezone: All dates, times, and logs should use New Zealand time (Pacific/Auckla
 - Multer for file uploads
 
 **Note**: The application is designed to potentially use Drizzle ORM with PostgreSQL (configuration exists in drizzle.config.ts), but currently relies on file-based storage. The database integration may be added later for persistence.
+
+## Pre-Publishing Review Checklist
+
+Before publishing the app, verify the following:
+
+### Localisation (NZ English)
+- [ ] All text uses New Zealand English spelling (e.g., "colour" not "color", "organise" not "organize")
+- [ ] All dates display in DD/MM/YYYY format
+- [ ] All timestamps in logs and documentation use NZ time (Pacific/Auckland, NZDT/NZST)
+
+### Media Loading
+- [ ] HEIC to JPEG conversion is working correctly (check server logs for conversion messages)
+- [ ] Photos load before videos and audio (priority loading for first 3 photos)
+- [ ] Media loading times remain optimised (Cache-Control headers set, HEIC cache working)
+- [ ] The app can locate and load media items from Google Drive effectively
+
+### Visual Consistency
+- [ ] All Polaroid photo borders are consistent white (not grey)
+- [ ] Loading placeholders match the Polaroid frame colour
+- [ ] Custom marker icons display correctly on the map
+
+### Data & Categories
+- [ ] All memories use `categories` property (not `tags`)
+- [ ] Category filtering works correctly for all categories (travel, food, event, family, music)
+- [ ] Food menu sub-filtering by identifier works correctly
+
+### Documentation
+- [ ] Version number updated in replit.md
+- [ ] Release date updated with NZ timezone
+- [ ] RELEASE_NOTES.md updated with comprehensive feature and version notes
+- [ ] Any breaking changes or important updates noted
+
+### Functionality
+- [ ] Authentication works with ACCESS_CODE
+- [ ] Google Drive connection established (check logs for "Google Drive connected successfully")
+- [ ] All view states work correctly (auth, landing, map, food-menu, filtered, detail)
+- [ ] Back navigation works correctly from all views
