@@ -142,10 +142,11 @@ export default function Home() {
   }
 
   if (viewState === 'map') {
+    // For travel category, use filteredMemories; otherwise use all memories (e.g., from random)
     const memoriesToShow = selectedCategory === 'travel' ? filteredMemories : memories;
     return (
       <InteractiveMap
-        memories={memoriesToShow.length > 0 ? memoriesToShow : memories}
+        memories={memoriesToShow}
         onMemorySelect={handleMemorySelect}
         onBack={handleBackToLanding}
         focusMemory={selectedMemory}

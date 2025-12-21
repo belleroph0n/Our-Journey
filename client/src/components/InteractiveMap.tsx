@@ -58,7 +58,7 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
 
     // Add markers for each memory - travel memories use girl with bindle, others use map pin
     memories.forEach((memory) => {
-      const isTravel = memory.tags?.includes('travel');
+      const isTravel = memory.categories?.includes('travel');
       const el = document.createElement('div');
       el.className = 'memory-marker';
       el.style.cursor = 'pointer';
