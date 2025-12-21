@@ -1,7 +1,7 @@
 # Our Journey - Interactive Memory Map
 
-**Version:** 2.0.0  
-**Release Date:** 20 December 2025  
+**Version:** 2.1.0  
+**Release Date:** 21 December 2025  
 **Custom Domain:** alexndan.com
 
 ## Overview
@@ -48,7 +48,7 @@ Preferred communication style: Simple, everyday language.
 2. Replit Object Storage (fallback) - for legacy deployments
 3. Local filesystem (development fallback)
 
-**Memory Data Structure**: Each memory contains: id, title, country, city, latitude, longitude, date, description, tags (array), photoFiles (array), videoFiles (array), audioFiles (array).
+**Memory Data Structure**: Each memory contains: id, title, country, city, latitude, longitude, date, description, categories (array), identifier (optional string for sub-filtering), photoFiles (array), videoFiles (array), audioFiles (array).
 
 **Schema Validation**: Zod schemas define the shape of Memory objects and form inputs, ensuring type safety across the stack.
 

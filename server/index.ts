@@ -1,3 +1,6 @@
+// Set timezone to New Zealand for all date/time operations
+process.env.TZ = 'Pacific/Auckland';
+
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import { registerRoutes } from "./routes";

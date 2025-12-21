@@ -1,5 +1,71 @@
 # Our Journey - Release Notes
 
+## Version 2.1.0 - Food Menu & Category Refinements
+**Release Date:** 21 December 2025
+
+---
+
+### Overview
+
+Version 2.1 introduces a fine dining restaurant-style menu for exploring food memories, along with improvements to category filtering and visual refinements.
+
+---
+
+### New Features
+
+#### Food Sub-Category Menu
+- **Restaurant-Style Menu**: Selecting "Food" now displays an elegant fine dining menu interface
+- **Menu Categories**: Seven courses to choose from:
+  - **Degustation** - Our best dishes for discerning diners
+  - **Appetisers** - A selection of tasty snacks
+  - **Comfort Food** - Not always healthy, but sure is tasty
+  - **Main for Two** - The best meals are always shared
+  - **Main for More** - Why not feed the whole family
+  - **Dessert** - Sweet treats and cakes
+  - **Just Feed Me** - Everything on the menu
+- **Identifier-Based Filtering**: Memories can now have an "identifier" field for sub-category filtering
+- **Seamless Navigation**: Food → Menu → Memories → back to Menu flow
+
+#### Events Animation Update
+- **Sunrise Animation**: Events category now features a sun rising above hills
+- **New Caption**: "Shining a light on our memorable events"
+
+---
+
+### Improvements
+
+#### Schema Updates
+- **Categories Renamed**: "tags" field renamed to "categories" for clarity
+- **New Identifier Field**: Added "identifier" column support for sub-filtering within categories
+- **Flexible Column Names**: Parser now accepts multiple column name variations (categories, Categories, tags, Tags, etc.)
+
+#### Visual Refinements
+- **Polaroid Borders**: Photo borders now display in white for better visibility against backgrounds
+- **Menu Typography**: Handwritten font styling with proper spacing and proportions
+- **A4 Proportions**: Menu card uses 1:1.414 aspect ratio like standard stationery
+
+#### Timezone
+- **NZ Time**: All server logs now display in New Zealand time (Pacific/Auckland)
+
+---
+
+### Technical Details
+- Added `identifier` field to Memory schema
+- FoodMenu component with responsive design
+- Updated memory parser for flexible column name matching
+- Server timezone set to Pacific/Auckland
+
+---
+
+### Spreadsheet Updates Required
+If using the identifier feature, add a column named "identifier" to your spreadsheet with values like:
+- `degustation`, `appetiser`, `comfort`, `two`, `more`, `dessert`
+- Leave blank for memories that should only appear in "Just Feed Me"
+
+---
+
+---
+
 ## Version 2.0.0 - Performance & Polish
 **Release Date:** 20 December 2025
 
