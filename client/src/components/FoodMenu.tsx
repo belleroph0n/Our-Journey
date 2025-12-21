@@ -94,13 +94,13 @@ export default function FoodMenu({ memories, onMenuItemSelect, onBack }: FoodMen
         data-testid="food-menu-container"
       >
         <div 
-          className="bg-muted/40 border border-foreground/20 shadow-xl px-6 sm:px-8 md:px-10 lg:px-12 py-8 sm:py-10 md:py-12"
+          className="bg-muted/40 border border-foreground/20 shadow-xl px-7 sm:px-10 md:px-12 lg:px-14 py-8 sm:py-10 md:py-12"
           style={{
             background: 'linear-gradient(to bottom, hsl(var(--muted) / 0.5), hsl(var(--muted) / 0.3))',
           }}
         >
           <h1 
-            className="text-3xl sm:text-4xl md:text-5xl font-handwritten text-center mb-8 sm:mb-10 md:mb-12 pb-3 border-b border-foreground/30 italic tracking-wide"
+            className="text-2xl sm:text-3xl md:text-4xl font-handwritten text-center mb-8 sm:mb-10 md:mb-12 italic tracking-wide underline decoration-foreground underline-offset-4"
             data-testid="text-menu-title"
           >
             Menu
@@ -115,13 +115,13 @@ export default function FoodMenu({ memories, onMenuItemSelect, onBack }: FoodMen
                 data-testid={`button-menu-${item.id}`}
               >
                 <div className="leading-relaxed">
-                  <span className="font-handwritten text-lg sm:text-xl md:text-2xl italic text-foreground group-hover:text-primary transition-colors underline decoration-foreground/30 underline-offset-2 group-hover:decoration-primary">
+                  <span className="font-handwritten text-base sm:text-lg md:text-xl italic text-foreground group-hover:text-primary transition-colors">
                     {item.title}
                   </span>
-                  <span className="font-handwritten text-base sm:text-lg md:text-xl text-foreground/60 mx-2">
+                  <span className="font-handwritten text-sm sm:text-base md:text-lg text-foreground/60 mx-2">
                     –
                   </span>
-                  <span className="font-handwritten text-base sm:text-lg md:text-xl text-foreground/70">
+                  <span className="font-handwritten text-sm sm:text-base md:text-lg text-foreground/70">
                     {item.description}
                   </span>
                 </div>
