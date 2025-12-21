@@ -287,7 +287,7 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
                     transform: `rotate(${index % 3 === 0 ? -1 : index % 3 === 1 ? 1 : 0}deg)`,
                   }}
                 >
-                  <div className="bg-card px-4 pt-4 pb-20 rounded-md shadow-lg hover-elevate active-elevate-2 transition-transform">
+                  <div className="bg-white dark:bg-gray-100 px-4 pt-4 pb-20 rounded-md shadow-lg hover-elevate active-elevate-2 transition-transform">
                     <div className="aspect-square rounded-sm overflow-hidden">
                       <MediaImage
                         src={`/api/media/${photo}`}

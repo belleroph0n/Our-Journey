@@ -93,10 +93,11 @@ function convertRowToMemory(row: any): Memory {
   const photoFiles = row.photo_files || row.photoFiles || row.photos || '';
   const videoFiles = row.video_files || row.videoFiles || row.videos || '';
   const audioFiles = row.audio_files || row.audioFiles || row.audio || '';
-  // Support both 'categories' (new) and 'tags' (legacy) column names
-  const categories = row.categories || row.tags || '';
+  // Support both 'categories' (new) and 'tags' (legacy) column names - also try case variations
+  const categories = row.categories || row.Categories || row.tags || row.Tags || row.category || row.Category || '';
   // New identifier column for sub-filtering within categories
-  const identifier = row.identifier || '';
+  const identifier = row.identifier || row.Identifier || '';
+
 
   return {
     id: row.id?.toString() || '',

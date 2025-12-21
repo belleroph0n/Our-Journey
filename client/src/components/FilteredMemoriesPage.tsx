@@ -169,14 +169,14 @@ export default function FilteredMemoriesPage({
                       </p>
                     )}
 
-                    {memory.tags && memory.tags.length > 0 && (
+                    {memory.categories && memory.categories.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-3">
-                        {memory.tags.map((tag) => (
+                        {memory.categories.map((cat) => (
                           <span
-                            key={tag}
+                            key={cat}
                             className="px-2 py-0.5 text-xs font-mono bg-muted rounded-full text-muted-foreground"
                           >
-                            {tag}
+                            {cat}
                           </span>
                         ))}
                       </div>
