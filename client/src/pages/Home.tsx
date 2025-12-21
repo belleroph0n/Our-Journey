@@ -63,6 +63,7 @@ export default function Home() {
   };
 
   const handleFoodMenuSelect = (identifier: string | null, filtered: Memory[]) => {
+    setSelectedCategory('food');
     setFilteredMemories(filtered);
     setViewState('filtered');
   };

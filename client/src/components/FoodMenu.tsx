@@ -1,6 +1,6 @@
 import { Memory } from '@shared/schema';
 import { Button } from '@/components/ui/button';
-import { Home, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 interface MenuItem {
   id: string;
@@ -76,7 +76,7 @@ export default function FoodMenu({ memories, onMenuItemSelect, onBack }: FoodMen
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative">
       <div className="fixed top-4 left-4 z-30">
         <Button
           size="icon"
@@ -90,37 +90,44 @@ export default function FoodMenu({ memories, onMenuItemSelect, onBack }: FoodMen
       </div>
 
       <div 
-        className="w-full max-w-md sm:max-w-lg md:max-w-xl bg-muted/30 border border-border rounded-sm shadow-lg p-6 sm:p-8 md:p-10"
+        className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl relative"
         data-testid="food-menu-container"
       >
-        <h1 
-          className="text-2xl sm:text-3xl md:text-4xl font-handwritten text-center mb-6 sm:mb-8 pb-2 border-b border-foreground/20 italic"
-          data-testid="text-menu-title"
+        <div 
+          className="bg-muted/40 border border-foreground/20 shadow-xl px-6 sm:px-8 md:px-10 lg:px-12 py-8 sm:py-10 md:py-12"
+          style={{
+            background: 'linear-gradient(to bottom, hsl(var(--muted) / 0.5), hsl(var(--muted) / 0.3))',
+          }}
         >
-          Menu
-        </h1>
+          <h1 
+            className="text-3xl sm:text-4xl md:text-5xl font-handwritten text-center mb-8 sm:mb-10 md:mb-12 pb-3 border-b border-foreground/30 italic tracking-wide"
+            data-testid="text-menu-title"
+          >
+            Menu
+          </h1>
 
-        <div className="space-y-6 sm:space-y-8">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleMenuItemClick(item)}
-              className="w-full text-left group cursor-pointer hover-elevate active-elevate-2 rounded-sm p-2 -m-2 transition-all"
-              data-testid={`button-menu-${item.id}`}
-            >
-              <div className="flex flex-wrap items-baseline gap-x-2">
-                <span className="font-handwritten text-lg sm:text-xl md:text-2xl italic text-foreground group-hover:text-primary transition-colors">
-                  {item.title}
-                </span>
-                <span className="text-foreground/60 font-handwritten text-base sm:text-lg">
-                  –
-                </span>
-                <span className="font-handwritten text-base sm:text-lg text-foreground/70 leading-relaxed">
-                  {item.description}
-                </span>
-              </div>
-            </button>
-          ))}
+          <div className="space-y-6 sm:space-y-7 md:space-y-8">
+            {menuItems.map((item, index) => (
+              <button
+                key={item.id}
+                onClick={() => handleMenuItemClick(item)}
+                className="w-full text-left group cursor-pointer transition-all hover:translate-x-1"
+                data-testid={`button-menu-${item.id}`}
+              >
+                <div className="leading-relaxed">
+                  <span className="font-handwritten text-lg sm:text-xl md:text-2xl italic text-foreground group-hover:text-primary transition-colors underline decoration-foreground/30 underline-offset-2 group-hover:decoration-primary">
+                    {item.title}
+                  </span>
+                  <span className="font-handwritten text-base sm:text-lg md:text-xl text-foreground/60 mx-2">
+                    –
+                  </span>
+                  <span className="font-handwritten text-base sm:text-lg md:text-xl text-foreground/70">
+                    {item.description}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
