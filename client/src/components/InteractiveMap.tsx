@@ -105,7 +105,7 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
     };
   }, [memories]);
 
-  // Fly to focused memory when provided
+  // Fly to focused memory when provided (without showing card)
   useEffect(() => {
     if (focusMemory && map.current) {
       map.current.flyTo({
@@ -114,8 +114,6 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
         essential: true,
         duration: 2000
       });
-      // Also select the memory to show the preview card
-      setSelectedMemory(focusMemory);
     }
   }, [focusMemory]);
 
