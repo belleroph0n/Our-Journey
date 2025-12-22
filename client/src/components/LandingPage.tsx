@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Memory } from '@shared/schema';
 
-import turntableImage from '@assets/generated_images/hand-drawn_turntable_top-down_sketch.png';
+import turntableImage from '@assets/generated_images/dark_plinth_turntable_sketch.png';
 import familyImage from '@assets/generated_images/hand-drawn_family_frame_sketch.png';
 import globeImage from '@assets/generated_images/hand-drawn_desk_globe_sketch.png';
 import mealImage from '@assets/generated_images/hand-drawn_meal_plate_sketch.png';
@@ -283,17 +283,16 @@ function SunriseAnimation() {
           />
           {/* Sun body */}
           <div className="w-10 h-10 rounded-full bg-foreground/40 -ml-5 -mt-5" />
-          {/* Sun rays - positioned around the sun disc */}
+          {/* Sun rays - starting outside the sun disc and extending outward */}
           {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
             <motion.div
               key={angle}
               className="absolute w-0.5 h-3 bg-foreground/30 rounded-full"
               style={{
                 left: '0',
-                top: '0',
+                top: '-34px',
                 marginLeft: '-1px',
-                marginTop: '-24px',
-                transformOrigin: '1px 24px',
+                transformOrigin: '1px 34px',
                 transform: `rotate(${angle}deg)`
               }}
               animate={{ opacity: [0.3, 0.6, 0.3] }}
@@ -541,16 +540,12 @@ export default function LandingPage({ memories, onCategorySelect, onRandomMemory
               className="aspect-square rounded-2xl bg-card border-2 border-border shadow-lg flex flex-col items-center justify-center gap-2 sm:gap-3 hover-elevate cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed p-4"
               data-testid={`button-category-${category.id}`}
             >
-              {category.id === 'random' ? (
-                <DiceIcon className="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 items-center justify-center" />
-              ) : (
-                <img
-                  src={category.image}
-                  alt={category.label}
-                  className="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain"
-                  style={{ filter: 'grayscale(100%)' }}
-                />
-              )}
+              <img
+                src={category.image}
+                alt={category.label}
+                className="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain"
+                style={{ filter: 'grayscale(100%)' }}
+              />
               <span className="text-base sm:text-lg md:text-xl font-handwritten text-foreground/80">{category.label}</span>
             </motion.button>
           ))}

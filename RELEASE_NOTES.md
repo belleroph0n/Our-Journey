@@ -9,13 +9,18 @@
 
 #### Music Category Icon
 - **New Turntable Icon**: Replaced jukebox with hand-drawn Rega Planar 6 turntable (top-down view)
+- **Dark Plinth**: Turntable base appears dark/almost black for authentic Rega styling
 - **Updated Loading Text**: Changed "Tuning the jukebox..." to "Dropping the needle..."
 - **Preserved Animation**: Bouncing musical notes animation unchanged
 
+#### Surprise Me Category Icon
+- **Hand-Drawn Dice**: Replaced programmatic dice with hand-drawn sketch matching other category icons
+- **Consistent Style**: All six category tiles now use the same hand-drawn illustration style
+
 #### Events Animation Fix
-- **Sun Ray Alignment**: Fixed sun rays to extend correctly from the sun disc centre
-- **Previously**: Rays were misaligned to the right of the sun circle
-- **Now**: Rays radiate symmetrically from the sun's centre
+- **Sun Ray Positioning**: Rays now start outside the sun disc and extend outward
+- **Previously**: Rays were positioned inside/overlapping the sun circle
+- **Now**: Rays radiate outward from just beyond the sun's edge
 
 ---
 
