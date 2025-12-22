@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Memory } from '@shared/schema';
 import { Button } from '@/components/ui/button';
-import { Home, Calendar, ImageOff, ArrowLeft, MapPin } from 'lucide-react';
+import { Home, Calendar, ImageOff, ArrowLeft, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import customMarkerIcon from '@assets/Untitled design (1)_1763443679229.png';
 
@@ -167,13 +167,57 @@ interface MemoryDetailProps {
 }
 
 export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: MemoryDetailProps) {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
+
+  // Get all photos (excluding videos)
+  const allPhotos = memory.photoFiles.filter(f => !isVideoFile(f));
 
   // Scroll to top when memory detail opens
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [memory.id]);
+
+  // Navigation functions for lightbox
+  const goToPrevious = () => {
+    if (selectedImageIndex !== null) {
+      setSelectedImageIndex(selectedImageIndex === 0 ? allPhotos.length - 1 : selectedImageIndex - 1);
+    }
+  };
+
+  const goToNext = () => {
+    if (selectedImageIndex !== null) {
+      setSelectedImageIndex(selectedImageIndex === allPhotos.length - 1 ? 0 : selectedImageIndex + 1);
+    }
+  };
+
+  // Touch handlers for swipe gestures
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    const swipeThreshold = 50;
+    const diff = touchStartX.current - touchEndX.current;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        // Swiped left - go forward
+        goToNext();
+      } else {
+        // Swiped right - go backward
+        goToPrevious();
+      }
+    }
+    touchStartX.current = 0;
+    touchEndX.current = 0;
+  };
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -276,15 +320,15 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
         </div>
 
         {/* Photo gallery - filter out video files */}
-        {memory.photoFiles.filter(f => !isVideoFile(f)).length > 0 && (
+        {allPhotos.length > 0 && (
           <div className="space-y-6">
             <h2 className="text-3xl font-handwritten">Photos</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {memory.photoFiles.filter(f => !isVideoFile(f)).map((photo, index) => (
+              {allPhotos.map((photo, index) => (
                 <div
                   key={photo}
                   className="group cursor-pointer"
-                  onClick={() => setSelectedImage(photo)}
+                  onClick={() => setSelectedImageIndex(index)}
                   data-testid={`image-gallery-${index}`}
                   style={{
                     transform: `rotate(${index % 3 === 0 ? -1 : index % 3 === 1 ? 1 : 0}deg)`,
@@ -337,15 +381,55 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
         )}
       </div>
 
-      {/* Image lightbox */}
-      <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-        <DialogContent className="max-w-4xl p-0">
-          {selectedImage && (
-            <img
-              src={`/api/media/${selectedImage}`}
-              alt="Full size memory"
-              className="w-full h-auto rounded-lg"
-            />
+      {/* Image lightbox with navigation */}
+      <Dialog open={selectedImageIndex !== null} onOpenChange={() => setSelectedImageIndex(null)}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden">
+          {selectedImageIndex !== null && allPhotos[selectedImageIndex] && (
+            <div 
+              className="relative"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <img
+                src={`/api/media/${allPhotos[selectedImageIndex]}`}
+                alt={`Full size memory ${selectedImageIndex + 1}`}
+                className="w-full h-auto rounded-lg"
+                draggable={false}
+              />
+              
+              {/* Navigation arrows - only show if more than 1 photo */}
+              {allPhotos.length > 1 && (
+                <>
+                  {/* Previous button */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-black/40 hover:bg-black/60 rounded-full transition-colors"
+                    data-testid="button-previous-image"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft className="w-6 h-6 text-white" />
+                  </button>
+                  
+                  {/* Next button */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); goToNext(); }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-black/40 hover:bg-black/60 rounded-full transition-colors"
+                    data-testid="button-next-image"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight className="w-6 h-6 text-white" />
+                  </button>
+                  
+                  {/* Image counter */}
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/50 rounded-full">
+                    <span className="text-white text-sm font-mono">
+                      {selectedImageIndex + 1} / {allPhotos.length}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
           )}
         </DialogContent>
       </Dialog>
