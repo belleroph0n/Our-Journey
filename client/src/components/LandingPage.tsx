@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Memory } from '@shared/schema';
 
-import turntableImage from '@assets/generated_images/rustic_shaded_turntable_sketch.png';
+import turntableImage from '@assets/generated_images/grey_shaded_turntable_plinth_sketch.png';
 import familyImage from '@assets/generated_images/hand-drawn_family_frame_sketch.png';
 import globeImage from '@assets/generated_images/hand-drawn_desk_globe_sketch.png';
 import mealImage from '@assets/generated_images/hand-drawn_meal_plate_sketch.png';
 import whaleImage from '@assets/generated_images/hand-drawn_whale_breaching_sketch.png';
-import diceImage from '@assets/generated_images/accurate_hand-drawn_dice_sketch.png';
+import diceImage from '@assets/generated_images/dice_with_dots_only_sketch.png';
 
 interface LandingPageProps {
   memories: Memory[];
