@@ -1,5 +1,26 @@
 # Our Journey - Release Notes
 
+## Version 2.1.2 - Icon Updates & Animation Fixes
+**Release Date:** 22 December 2025 (NZDT)
+
+---
+
+### Visual Updates
+
+#### Music Category Icon
+- **New Turntable Icon**: Replaced jukebox with hand-drawn Rega Planar 6 turntable (top-down view)
+- **Updated Loading Text**: Changed "Tuning the jukebox..." to "Dropping the needle..."
+- **Preserved Animation**: Bouncing musical notes animation unchanged
+
+#### Events Animation Fix
+- **Sun Ray Alignment**: Fixed sun rays to extend correctly from the sun disc centre
+- **Previously**: Rays were misaligned to the right of the sun circle
+- **Now**: Rays radiate symmetrically from the sun's centre
+
+---
+
+---
+
 ## Version 2.1.1 - Bug Fixes & Optimisations
 **Release Date:** 21 December 2025 (NZDT)
 

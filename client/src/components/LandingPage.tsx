@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Memory } from '@shared/schema';
 
-import jukeboxImage from '@assets/generated_images/jukebox_sketch_without_notes.png';
+import turntableImage from '@assets/generated_images/hand-drawn_turntable_top-down_sketch.png';
 import familyImage from '@assets/generated_images/hand-drawn_family_frame_sketch.png';
 import globeImage from '@assets/generated_images/hand-drawn_desk_globe_sketch.png';
 import mealImage from '@assets/generated_images/hand-drawn_meal_plate_sketch.png';
@@ -25,7 +25,7 @@ interface CategoryConfig {
 }
 
 const categories: CategoryConfig[] = [
-  { id: 'music', label: 'Music', image: jukeboxImage, tag: 'music' },
+  { id: 'music', label: 'Music', image: turntableImage, tag: 'music' },
   { id: 'family', label: 'Family and friends', image: familyImage, tag: 'family' },
   { id: 'travel', label: 'Travel', image: globeImage, tag: 'travel' },
   { id: 'food', label: 'Food', image: mealImage, tag: 'food' },
@@ -122,7 +122,7 @@ function BouncingNotesAnimation() {
         animate={{ opacity: [0.5, 1, 0.5] }}
         transition={{ duration: 1.5, repeat: Infinity }}
       >
-        Tuning the jukebox...
+        Dropping the needle...
       </motion.div>
     </div>
   );
@@ -283,18 +283,18 @@ function SunriseAnimation() {
           />
           {/* Sun body */}
           <div className="w-10 h-10 rounded-full bg-foreground/40 -ml-5 -mt-5" />
-          {/* Sun rays */}
+          {/* Sun rays - positioned around the sun disc */}
           {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
             <motion.div
               key={angle}
               className="absolute w-0.5 h-3 bg-foreground/30 rounded-full"
               style={{
-                left: '50%',
-                top: '50%',
+                left: '0',
+                top: '0',
                 marginLeft: '-1px',
-                marginTop: '-1px',
-                transformOrigin: 'center 20px',
-                transform: `rotate(${angle}deg) translateY(-20px)`
+                marginTop: '-24px',
+                transformOrigin: '1px 24px',
+                transform: `rotate(${angle}deg)`
               }}
               animate={{ opacity: [0.3, 0.6, 0.3] }}
               transition={{ duration: 1.5, repeat: Infinity, delay: angle / 360 }}
