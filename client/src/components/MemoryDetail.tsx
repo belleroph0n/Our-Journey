@@ -171,6 +171,7 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
+  const isNavigating = useRef<boolean>(false);
 
   // Get all photos (excluding videos)
   const allPhotos = memory.photoFiles.filter(f => !isVideoFile(f));
@@ -180,7 +181,7 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
     window.scrollTo(0, 0);
   }, [memory.id]);
 
-  // Navigation functions for lightbox
+  // Navigation functions for lightbox with debounce for button clicks
   const goToPrevious = () => {
     if (selectedImageIndex !== null) {
       setSelectedImageIndex(selectedImageIndex === 0 ? allPhotos.length - 1 : selectedImageIndex - 1);
@@ -191,6 +192,22 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
     if (selectedImageIndex !== null) {
       setSelectedImageIndex(selectedImageIndex === allPhotos.length - 1 ? 0 : selectedImageIndex + 1);
     }
+  };
+
+  // Debounced navigation for button clicks (prevents double-trigger on mobile)
+  const handleButtonNavigation = (direction: 'prev' | 'next') => {
+    if (isNavigating.current) return;
+    
+    isNavigating.current = true;
+    if (direction === 'prev') {
+      goToPrevious();
+    } else {
+      goToNext();
+    }
+    
+    setTimeout(() => {
+      isNavigating.current = false;
+    }, 200);
   };
 
   // Touch handlers for swipe gestures
@@ -403,7 +420,7 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
                 <>
                   {/* Previous button */}
                   <button
-                    onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
+                    onClick={(e) => { e.stopPropagation(); handleButtonNavigation('prev'); }}
                     className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-black/40 hover:bg-black/60 rounded-full transition-colors"
                     data-testid="button-previous-image"
                     aria-label="Previous image"
@@ -413,7 +430,7 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
                   
                   {/* Next button */}
                   <button
-                    onClick={(e) => { e.stopPropagation(); goToNext(); }}
+                    onClick={(e) => { e.stopPropagation(); handleButtonNavigation('next'); }}
                     className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-black/40 hover:bg-black/60 rounded-full transition-colors"
                     data-testid="button-next-image"
                     aria-label="Next image"
