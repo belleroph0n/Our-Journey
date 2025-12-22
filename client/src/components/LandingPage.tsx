@@ -122,7 +122,7 @@ function BouncingNotesAnimation() {
         animate={{ opacity: [0.5, 1, 0.5] }}
         transition={{ duration: 1.5, repeat: Infinity }}
       >
-        Dropping the needle...
+        Spinning some wax...
       </motion.div>
     </div>
   );
@@ -214,9 +214,9 @@ function BoilingPotAnimation() {
             />
           </div>
         </div>
-        {/* Pot handles - positioned lower on the sides */}
-        <div className="absolute top-5 -left-2.5 w-2.5 h-4 border-2 border-foreground/45 rounded-l-full bg-foreground/10" />
-        <div className="absolute top-5 -right-2.5 w-2.5 h-4 border-2 border-foreground/45 rounded-r-full bg-foreground/10" />
+        {/* Pot handles - positioned near top of the pot */}
+        <div className="absolute top-2 -left-2.5 w-2.5 h-4 border-2 border-foreground/45 rounded-l-full bg-foreground/10" />
+        <div className="absolute top-2 -right-2.5 w-2.5 h-4 border-2 border-foreground/45 rounded-r-full bg-foreground/10" />
         {/* Steam rising - wispy curved steam */}
         <div className="absolute -top-10 left-0 right-0 flex justify-center gap-3">
           <motion.div

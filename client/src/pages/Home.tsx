@@ -105,6 +105,11 @@ export default function Home() {
     setViewState('food-menu');
   };
 
+  const handleBackToMap = () => {
+    console.log('Navigating back to map');
+    setViewState('map');
+  };
+
   if (isCheckingAuth) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -184,7 +189,9 @@ export default function Home() {
     let backHandler = handleBackToLanding;
     if (selectedCategory === 'food') {
       backHandler = handleBackToFiltered;
-    } else if (selectedCategory && selectedCategory !== 'travel' && selectedCategory !== 'random') {
+    } else if (selectedCategory === 'travel') {
+      backHandler = handleBackToMap;
+    } else if (selectedCategory && selectedCategory !== 'random') {
       backHandler = handleBackToFiltered;
     }
     
