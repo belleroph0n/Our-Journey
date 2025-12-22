@@ -199,6 +199,7 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
   // Handle touch on navigation buttons - prevents subsequent click from firing
   const handleNavTouchEnd = (direction: 'prev' | 'next') => (e: React.TouchEvent) => {
     e.preventDefault();
+    e.stopPropagation(); // Prevent the swipe handler on the container from also firing
     touchHandledRef.current = true;
     if (direction === 'prev') {
       goToPrevious();
@@ -432,6 +433,7 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
                 <>
                   {/* Previous button */}
                   <button
+                    onTouchStart={(e) => e.stopPropagation()}
                     onTouchEnd={handleNavTouchEnd('prev')}
                     onClick={handleNavClick('prev')}
                     className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-black/40 hover:bg-black/60 rounded-full transition-colors"
@@ -443,6 +445,7 @@ export default function MemoryDetail({ memory, onBack, onHome, onViewOnMap }: Me
                   
                   {/* Next button */}
                   <button
+                    onTouchStart={(e) => e.stopPropagation()}
                     onTouchEnd={handleNavTouchEnd('next')}
                     onClick={handleNavClick('next')}
                     className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-black/40 hover:bg-black/60 rounded-full transition-colors"
