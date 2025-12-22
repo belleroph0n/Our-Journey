@@ -1,6 +1,6 @@
 # Our Journey - Interactive Memory Map
 
-**Version:** 2.1.2  
+**Version:** 2.2.0  
 **Release Date:** 22 December 2025 (NZDT)  
 **Custom Domain:** alexndan.com
 

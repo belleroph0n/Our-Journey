@@ -1,5 +1,43 @@
 # Our Journey - Release Notes
 
+## Version 2.2.0 - UX Improvements & Visual Refinements
+**Release Date:** 22 December 2025 (NZDT)
+
+---
+
+### User Experience Improvements
+
+#### Direct Memory Navigation
+- **Removed Popup Card**: Clicking a memory marker on the map now navigates directly to the memory detail page
+- **Faster Access**: Eliminates the intermediate preview step for quicker exploration
+- **Streamlined Flow**: One click to view full memory details instead of two
+
+#### Category Reordering
+- **New Order**: Categories on landing page now display in this order:
+  1. Family and friends
+  2. Food
+  3. Events
+  4. Music
+  5. Travel
+  6. Surprise Me
+- **Logical Grouping**: People and experiences first, exploration last
+
+### Visual Updates
+
+#### Music Category Icon
+- **Clean Background**: Turntable image now has plain white background (no gradient)
+- **Consistent Style**: Matches other category icons with clean white backgrounds
+
+#### Surprise Me Category Icon
+- **Simplified Dice**: New hand-drawn dice showing only front faces
+- **Left Die**: 3 dots arranged diagonally
+- **Right Die**: 4 dots arranged in a square pattern
+- **Cleaner Design**: Simple 2D representation instead of 3D perspective
+
+---
+
+---
+
 ## Version 2.1.2 - Icon Updates & Animation Fixes
 **Release Date:** 22 December 2025 (NZDT)
 
