@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Memory } from '@shared/schema';
 
-import turntableImage from '@assets/generated_images/grey_shaded_turntable_plinth_sketch.png';
+import turntableImage from '@assets/generated_images/turntable_on_white_background.png';
 import familyImage from '@assets/generated_images/hand-drawn_family_frame_sketch.png';
 import globeImage from '@assets/generated_images/hand-drawn_desk_globe_sketch.png';
 import mealImage from '@assets/generated_images/hand-drawn_meal_plate_sketch.png';
 import whaleImage from '@assets/generated_images/hand-drawn_whale_breaching_sketch.png';
-import diceImage from '@assets/generated_images/dice_with_dots_only_sketch.png';
+import diceImage from '@assets/generated_images/two_dice_front_faces_only.png';
 
 interface LandingPageProps {
   memories: Memory[];
@@ -25,11 +25,11 @@ interface CategoryConfig {
 }
 
 const categories: CategoryConfig[] = [
-  { id: 'music', label: 'Music', image: turntableImage, tag: 'music' },
   { id: 'family', label: 'Family and friends', image: familyImage, tag: 'family' },
-  { id: 'travel', label: 'Travel', image: globeImage, tag: 'travel' },
   { id: 'food', label: 'Food', image: mealImage, tag: 'food' },
   { id: 'event', label: 'Events', image: whaleImage, tag: 'event' },
+  { id: 'music', label: 'Music', image: turntableImage, tag: 'music' },
+  { id: 'travel', label: 'Travel', image: globeImage, tag: 'travel' },
   { id: 'random', label: 'Surprise Me', image: diceImage, tag: '' },
 ];
 
