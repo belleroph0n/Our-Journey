@@ -85,7 +85,7 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
       }
 
       el.addEventListener('click', () => {
-        setSelectedMemory(memory);
+        onMemorySelect(memory);
       });
 
       if (map.current) {
