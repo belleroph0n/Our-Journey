@@ -1,6 +1,6 @@
 # Our Journey - Interactive Memory Map
 
-**Version:** 2.3.0  
+**Version:** 2.4.0  
 **Release Date:** 23 December 2025 (NZDT)  
 **Custom Domain:** alexndan.com
 
@@ -122,6 +122,17 @@ Before publishing the app, verify the following:
 - [ ] Wrapping navigation works: from first photo, < goes to last; from last photo, > goes to first
 - [ ] Photo counter displays correctly (e.g., "3 / 10")
 - [ ] All photos in a memory appear in both the polaroid grid and the carousel
+
+### Multi-Memory Location Popup
+- [ ] Markers at locations with multiple memories show count badge
+- [ ] Clicking grouped marker shows popup card with memory list
+- [ ] Memory titles wrap correctly for long text
+- [ ] Categories display below titles in smaller font
+- [ ] Popup is scrollable when many memories at one location
+- [ ] Clicking a memory title navigates to memory detail
+- [ ] X button closes the popup
+- [ ] Clicking outside the popup closes it
+- [ ] Back button from memory detail returns to map without popup
 
 ### Functionality
 - [ ] Authentication works with ACCESS_CODE

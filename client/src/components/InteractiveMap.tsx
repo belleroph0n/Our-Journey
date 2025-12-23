@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Memory } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { Home, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import customMarkerIcon from '@assets/Untitled design (1)_1763443679229.png';
 
 interface InteractiveMapProps {
   memories: Memory[];
@@ -16,14 +15,59 @@ interface InteractiveMapProps {
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || '';
 
+type LocationGroup = {
+  key: string;
+  lat: number;
+  lng: number;
+  memories: Memory[];
+};
+
+function groupMemoriesByLocation(memories: Memory[]): LocationGroup[] {
+  const groups: Record<string, LocationGroup> = {};
+  
+  memories.forEach((memory) => {
+    const key = `${memory.latitude.toFixed(6)},${memory.longitude.toFixed(6)}`;
+    if (!groups[key]) {
+      groups[key] = {
+        key,
+        lat: memory.latitude,
+        lng: memory.longitude,
+        memories: []
+      };
+    }
+    groups[key].memories.push(memory);
+  });
+  
+  return Object.values(groups);
+}
+
+function getCategoryLabel(categories: string[] | undefined): string {
+  if (!categories || categories.length === 0) return '';
+  return categories[0].charAt(0).toUpperCase() + categories[0].slice(1);
+}
+
 export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, onBack, focusMemory }: InteractiveMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
-  const [swipeOffset, setSwipeOffset] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const touchStartY = useRef(0);
-  const cardRef = useRef<HTMLDivElement>(null);
+  const [multiMemoryPopup, setMultiMemoryPopup] = useState<Memory[] | null>(null);
+  const [popupPosition, setPopupPosition] = useState<{ x: number; y: number } | null>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  const handleMapClick = useCallback((e: MouseEvent) => {
+    if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
+      setMultiMemoryPopup(null);
+      setPopupPosition(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (multiMemoryPopup) {
+      document.addEventListener('click', handleMapClick, true);
+      return () => {
+        document.removeEventListener('click', handleMapClick, true);
+      };
+    }
+  }, [multiMemoryPopup, handleMapClick]);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -33,7 +77,6 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
       return;
     }
 
-    // Initialize map
     mapboxgl.accessToken = MAPBOX_TOKEN;
     
     map.current = new mapboxgl.Map({
@@ -56,15 +99,15 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
       }
     });
 
-    // Add markers for each memory - travel memories use girl with bindle, others use map pin
-    memories.forEach((memory) => {
-      const isTravel = memory.categories?.includes('travel');
+    const locationGroups = groupMemoriesByLocation(memories);
+
+    locationGroups.forEach((group) => {
+      const hasTravel = group.memories.some(m => m.categories?.includes('travel'));
       const el = document.createElement('div');
       el.className = 'memory-marker';
       el.style.cursor = 'pointer';
       
-      if (isTravel) {
-        // Travel memories use the girl with bindle icon
+      if (hasTravel) {
         el.style.width = '44px';
         el.style.height = '44px';
         el.style.backgroundImage = `url("${new URL('@assets/Untitled design (1)_1763443679229.png', import.meta.url).href}")`;
@@ -73,7 +116,6 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
         el.style.backgroundPosition = 'center';
         el.style.filter = 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%) drop-shadow(0 0 1px white) drop-shadow(0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
       } else {
-        // Non-travel memories use Google Maps-style pin marker
         el.style.width = '32px';
         el.style.height = '40px';
         el.innerHTML = `
@@ -84,8 +126,40 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
         `;
       }
 
-      el.addEventListener('click', () => {
-        onMemorySelect(memory);
+      if (group.memories.length > 1) {
+        const badge = document.createElement('div');
+        badge.style.position = 'absolute';
+        badge.style.top = '-6px';
+        badge.style.right = '-6px';
+        badge.style.backgroundColor = '#FF327F';
+        badge.style.color = 'white';
+        badge.style.borderRadius = '50%';
+        badge.style.width = '20px';
+        badge.style.height = '20px';
+        badge.style.display = 'flex';
+        badge.style.alignItems = 'center';
+        badge.style.justifyContent = 'center';
+        badge.style.fontSize = '11px';
+        badge.style.fontWeight = 'bold';
+        badge.style.border = '2px solid white';
+        badge.style.boxShadow = '0 1px 3px rgba(0,0,0,0.3)';
+        badge.textContent = group.memories.length.toString();
+        el.style.position = 'relative';
+        el.appendChild(badge);
+      }
+
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (group.memories.length === 1) {
+          onMemorySelect(group.memories[0]);
+        } else {
+          const rect = el.getBoundingClientRect();
+          setPopupPosition({
+            x: rect.left + rect.width / 2,
+            y: rect.top
+          });
+          setMultiMemoryPopup(group.memories);
+        }
       });
 
       if (map.current) {
@@ -93,19 +167,20 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
           element: el,
           anchor: 'bottom'
         })
-          .setLngLat([memory.longitude, memory.latitude])
+          .setLngLat([group.lng, group.lat])
           .addTo(map.current);
       }
     });
 
     return () => {
+      setMultiMemoryPopup(null);
+      setPopupPosition(null);
       if (map.current) {
         map.current.remove();
       }
     };
   }, [memories]);
 
-  // Fly to focused memory when provided (without showing card)
   useEffect(() => {
     if (focusMemory && map.current) {
       map.current.flyTo({
@@ -117,45 +192,21 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
     }
   }, [focusMemory]);
 
-  const handleExploreMemory = () => {
-    if (selectedMemory) {
-      onMemorySelect(selectedMemory);
-    }
+  const handleCloseMultiMemoryPopup = () => {
+    setMultiMemoryPopup(null);
+    setPopupPosition(null);
   };
 
-  const handleCloseCard = () => {
-    setSelectedMemory(null);
-    setSwipeOffset(0);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
-    setIsDragging(true);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    const currentY = e.touches[0].clientY;
-    const diff = currentY - touchStartY.current;
-    if (diff > 0) {
-      setSwipeOffset(diff);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    setIsDragging(false);
-    if (swipeOffset > 100) {
-      handleCloseCard();
-    } else {
-      setSwipeOffset(0);
-    }
+  const handleMemoryFromPopup = (memory: Memory) => {
+    setMultiMemoryPopup(null);
+    setPopupPosition(null);
+    onMemorySelect(memory);
   };
 
   return (
     <div className="relative w-full h-screen">
       <div ref={mapContainer} className="w-full h-full" />
       
-      {/* Home Button - Upper Left */}
       {(onHomeClick || onBack) && (
         <div className="absolute top-4 left-4 z-10">
           <Button
@@ -170,72 +221,57 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
         </div>
       )}
 
-      {/* Memory count badge - Bottom Left */}
       <div className="absolute bottom-8 left-8 z-10">
         <Badge variant="secondary" className="px-4 py-2 text-sm font-handwritten shadow-lg">
           {memories.length} memories to explore
         </Badge>
       </div>
 
-      {/* Memory preview card */}
-      {selectedMemory && (
-        <div 
-          className="absolute top-8 z-10 w-full max-w-sm px-4"
+      {multiMemoryPopup && popupPosition && (
+        <div
+          ref={popupRef}
+          className="fixed z-50 bg-white dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
           style={{
-            left: '50%',
-            transform: `translate(-50%, ${swipeOffset}px)`,
-            opacity: 1 - (swipeOffset / 300),
-            transition: isDragging ? 'none' : 'transform 0.3s ease, opacity 0.3s ease',
+            left: Math.min(Math.max(popupPosition.x - 140, 16), window.innerWidth - 296),
+            top: Math.max(popupPosition.y - 8, 16),
+            width: '280px',
+            maxHeight: '320px',
+            transform: 'translateY(-100%)'
           }}
+          data-testid="popup-multi-memory"
         >
-          <div 
-            ref={cardRef}
-            className="bg-card rounded-xl shadow-2xl overflow-visible border border-card-border relative"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
-            {/* Close button */}
+          <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+            <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+              {multiMemoryPopup.length} memories at this location
+            </span>
             <button
-              onClick={handleCloseCard}
-              className="absolute top-3 right-3 z-20 transition-opacity hover:opacity-100"
-              data-testid="button-close-memory-card"
-              aria-label="Close memory card"
+              onClick={handleCloseMultiMemoryPopup}
+              className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              data-testid="button-close-multi-memory"
+              aria-label="Close memory list"
             >
-              <X className="w-5 h-5 text-muted-foreground/30" />
+              <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             </button>
-
-            <div className="h-48 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-              <img 
-                src={customMarkerIcon} 
-                alt="Memory location" 
-                className="w-16 h-16"
-                style={{
-                  filter: 'invert(49%) sepia(73%) saturate(4862%) hue-rotate(316deg) brightness(101%) contrast(101%)'
-                }}
-              />
-            </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <h3 className="text-2xl font-handwritten text-card-foreground">
-                  {selectedMemory.title}
-                </h3>
-                <p className="text-muted-foreground text-sm mt-1">
-                  {selectedMemory.city}, {selectedMemory.country}
-                </p>
-              </div>
-              <p className="text-card-foreground/80 text-sm line-clamp-2 font-mono">
-                {selectedMemory.description}
-              </p>
-              <Button 
-                className="w-full"
-                style={{ backgroundColor: '#FF327F' }}
-                onClick={handleExploreMemory}
-                data-testid="button-explore-memory"
+          </div>
+          
+          <div className="overflow-y-auto" style={{ maxHeight: '268px' }}>
+            {multiMemoryPopup.map((memory) => (
+              <button
+                key={memory.id}
+                onClick={() => handleMemoryFromPopup(memory)}
+                className="w-full text-left px-3 py-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-b-0 transition-colors"
+                data-testid={`button-memory-${memory.id}`}
               >
-                Explore This Memory
-              </Button>
-            </div>
+                <div className="text-xs text-gray-900 dark:text-gray-100 leading-snug break-words">
+                  {memory.title}
+                </div>
+                {memory.categories && memory.categories.length > 0 && (
+                  <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+                    {getCategoryLabel(memory.categories)}
+                  </div>
+                )}
+              </button>
+            ))}
           </div>
         </div>
       )}

@@ -1,5 +1,25 @@
 # Our Journey - Release Notes
 
+## Version 2.4.0 - Multi-Memory Location Popup
+**Release Date:** 23 December 2025 (NZDT)
+
+---
+
+### New Features
+
+#### Multi-Memory Location Support
+- **Grouped Markers**: Memories at the same coordinates now display as a single marker with a count badge
+- **Location Popup Card**: Clicking a marker with multiple memories shows a scrollable list
+- **Memory List**: Small font with title and category, text wrapping for long titles
+- **Scrollable**: Popup supports scrolling when many memories are at one location (max height 320px)
+- **Selection**: Click any memory title to navigate to its detail page
+- **Dismiss Options**: Close via X button or tap/click outside the popup
+- **Clean Navigation**: Back button returns to map without the popup displayed
+
+---
+
+---
+
 ## Version 2.3.0 - Photo Carousel Feature
 **Release Date:** 23 December 2025 (NZDT)
 
