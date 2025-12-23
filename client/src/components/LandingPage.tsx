@@ -25,12 +25,12 @@ interface CategoryConfig {
 }
 
 const categories: CategoryConfig[] = [
+  { id: 'event', label: 'Events', image: whaleImage, tag: 'event' },
   { id: 'family', label: 'Family and friends', image: familyImage, tag: 'family' },
   { id: 'food', label: 'Food', image: mealImage, tag: 'food' },
-  { id: 'event', label: 'Events', image: whaleImage, tag: 'event' },
   { id: 'music', label: 'Music', image: turntableImage, tag: 'music' },
-  { id: 'travel', label: 'Travel', image: globeImage, tag: 'travel' },
   { id: 'random', label: 'Surprise Me', image: diceImage, tag: '' },
+  { id: 'travel', label: 'Travel', image: globeImage, tag: 'travel' },
 ];
 
 function SpinningGlobeAnimation() {

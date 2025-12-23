@@ -156,6 +156,7 @@ export default function Home() {
     return (
       <InteractiveMap
         memories={memoriesToShow}
+        allMemories={memories}
         onMemorySelect={handleMemorySelect}
         onBack={handleBackToLanding}
         focusMemory={selectedMemory}

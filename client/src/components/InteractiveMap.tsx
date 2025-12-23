@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 
 interface InteractiveMapProps {
   memories: Memory[];
+  allMemories?: Memory[];
   onMemorySelect: (memory: Memory) => void;
   onHomeClick?: () => void;
   onBack?: () => void;
@@ -88,12 +89,22 @@ function getMarkerSvg(categories: string[]): string {
   `;
 }
 
-export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, onBack, focusMemory }: InteractiveMapProps) {
+export default function InteractiveMap({ memories, allMemories, onMemorySelect, onHomeClick, onBack, focusMemory }: InteractiveMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [multiMemoryPopup, setMultiMemoryPopup] = useState<Memory[] | null>(null);
   const [popupPosition, setPopupPosition] = useState<{ x: number; y: number } | null>(null);
   const popupRef = useRef<HTMLDivElement>(null);
+  const [showAllMemories, setShowAllMemories] = useState(false);
+  
+  const baseMemories = allMemories || memories;
+  const travelMemories = baseMemories.filter(m => 
+    m.categories?.some(c => c.toLowerCase() === 'travel')
+  );
+  const displayMemories = showAllMemories ? baseMemories : travelMemories;
+  const travelMemoriesCount = travelMemories.length;
+  const allMemoriesCount = baseMemories.length;
 
   const handleMapClick = useCallback((e: MouseEvent) => {
     if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
@@ -141,7 +152,23 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
       }
     });
 
-    const locationGroups = groupMemoriesByLocation(memories);
+    return () => {
+      setMultiMemoryPopup(null);
+      setPopupPosition(null);
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!map.current) return;
+
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = [];
+
+    const locationGroups = groupMemoriesByLocation(displayMemories);
 
     locationGroups.forEach((group) => {
       const allCategories = group.memories.flatMap(m => m.categories || []);
@@ -213,23 +240,16 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
       });
 
       if (map.current) {
-        new mapboxgl.Marker({
+        const marker = new mapboxgl.Marker({
           element: el,
           anchor: 'bottom'
         })
           .setLngLat([group.lng, group.lat])
           .addTo(map.current);
+        markersRef.current.push(marker);
       }
     });
-
-    return () => {
-      setMultiMemoryPopup(null);
-      setPopupPosition(null);
-      if (map.current) {
-        map.current.remove();
-      }
-    };
-  }, [memories]);
+  }, [displayMemories, onMemorySelect]);
 
   useEffect(() => {
     if (focusMemory && map.current) {
@@ -272,9 +292,21 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
       )}
 
       <div className="absolute bottom-8 left-8 z-10">
-        <Badge variant="secondary" className="px-4 py-2 text-sm font-handwritten shadow-lg">
-          {memories.length} memories to explore
-        </Badge>
+        <button
+          onClick={() => setShowAllMemories(!showAllMemories)}
+          className="px-4 py-2 text-sm font-handwritten shadow-lg rounded-full transition-all cursor-pointer"
+          style={{
+            backgroundColor: showAllMemories ? 'hsl(210, 50%, 50%)' : '#FF327F',
+            color: 'white',
+            border: '2px solid white',
+          }}
+          data-testid="button-toggle-memories"
+        >
+          {showAllMemories 
+            ? `${allMemoriesCount} memories to explore`
+            : `${travelMemoriesCount} travel memories to explore`
+          }
+        </button>
       </div>
 
       {multiMemoryPopup && popupPosition && (
