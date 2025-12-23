@@ -189,16 +189,9 @@ export default function InteractiveMap({ memories, allMemories, onMemorySelect, 
         el.style.backgroundPosition = 'center';
         el.style.filter = 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%) drop-shadow(0 0 1px white) drop-shadow(0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
       } else if (hasFood) {
-        el.style.width = '44px';
-        el.style.height = '44px';
-        const img = document.createElement('img');
-        img.src = new URL('@assets/IMG_0803_1766481326643.jpeg', import.meta.url).href;
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.objectFit = 'contain';
-        img.style.filter = 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
-        img.style.mixBlendMode = 'multiply';
-        el.appendChild(img);
+        el.style.width = '32px';
+        el.style.height = '40px';
+        el.innerHTML = getMarkerSvg(['food']);
       } else {
         el.style.width = '32px';
         el.style.height = '40px';
