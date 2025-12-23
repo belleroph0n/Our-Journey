@@ -16,6 +16,25 @@ interface InteractiveMapProps {
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || '';
 
+// Shared styling for hand-drawn PNG markers
+const MARKER_FILTER = 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
+
+// Import marker images
+const travelMarkerUrl = new URL('@assets/Untitled design (1)_1763443679229.png', import.meta.url).href;
+const foodMarkerUrl = new URL('@assets/knife_and_fork_1766526170551.png', import.meta.url).href;
+const familyMarkerUrl = new URL('@assets/heart-3510_1766526864877.png', import.meta.url).href;
+const musicMarkerUrl = new URL('@assets/music-note-10184_1766526986762.png', import.meta.url).href;
+
+function applyImageMarkerStyles(el: HTMLDivElement, imageUrl: string, size: number = 44) {
+  el.style.width = `${size}px`;
+  el.style.height = `${size}px`;
+  el.style.backgroundImage = `url("${imageUrl}")`;
+  el.style.backgroundSize = 'contain';
+  el.style.backgroundRepeat = 'no-repeat';
+  el.style.backgroundPosition = 'center';
+  el.style.filter = MARKER_FILTER;
+}
+
 type LocationGroup = {
   key: string;
   lat: number;
@@ -174,29 +193,34 @@ export default function InteractiveMap({ memories, allMemories, onMemorySelect, 
 
     locationGroups.forEach((group) => {
       const allCategories = group.memories.flatMap(m => m.categories || []);
-      const hasTravel = allCategories.some(c => c.toLowerCase() === 'travel');
-      const hasFood = allCategories.some(c => c.toLowerCase() === 'food');
+      const lowerCategories = allCategories.map(c => c.toLowerCase());
+      const hasMultiple = group.memories.length > 1;
+      const hasTravel = lowerCategories.includes('travel');
+      const hasFood = lowerCategories.includes('food');
+      const hasFamily = lowerCategories.includes('family') || lowerCategories.includes('friends');
+      const hasMusic = lowerCategories.includes('music');
+      
       const el = document.createElement('div');
       el.className = 'memory-marker';
       el.style.cursor = 'pointer';
       
-      if (hasTravel) {
-        el.style.width = '44px';
-        el.style.height = '44px';
-        el.style.backgroundImage = `url("${new URL('@assets/Untitled design (1)_1763443679229.png', import.meta.url).href}")`;
-        el.style.backgroundSize = 'contain';
-        el.style.backgroundRepeat = 'no-repeat';
-        el.style.backgroundPosition = 'center';
-        el.style.filter = 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%) drop-shadow(0 0 1px white) drop-shadow(0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
+      // For multi-memory locations, use the default pin marker with badge
+      // For single memories, use category-specific image markers
+      if (hasMultiple) {
+        // Default SVG pin for grouped locations
+        el.style.width = '32px';
+        el.style.height = '40px';
+        el.innerHTML = getMarkerSvg([]);
+      } else if (hasTravel) {
+        applyImageMarkerStyles(el, travelMarkerUrl);
       } else if (hasFood) {
-        el.style.width = '44px';
-        el.style.height = '44px';
-        el.style.backgroundImage = `url("${new URL('@assets/knife_and_fork_1766526170551.png', import.meta.url).href}")`;
-        el.style.backgroundSize = 'contain';
-        el.style.backgroundRepeat = 'no-repeat';
-        el.style.backgroundPosition = 'center';
-        el.style.filter = 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
+        applyImageMarkerStyles(el, foodMarkerUrl);
+      } else if (hasFamily) {
+        applyImageMarkerStyles(el, familyMarkerUrl);
+      } else if (hasMusic) {
+        applyImageMarkerStyles(el, musicMarkerUrl);
       } else {
+        // Default SVG pin for events and other categories
         el.style.width = '32px';
         el.style.height = '40px';
         el.innerHTML = getMarkerSvg(allCategories);
