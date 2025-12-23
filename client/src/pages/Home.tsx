@@ -109,7 +109,7 @@ export default function Home() {
 
   const handleBackToMap = () => {
     console.log('Navigating back to map');
-    setSelectedMemory(null);
+    // Keep selectedMemory so the map can focus on that location
     setPreviousViewState(null);
     setViewState('map');
   };

@@ -185,9 +185,9 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
     if (focusMemory && map.current) {
       map.current.flyTo({
         center: [focusMemory.longitude, focusMemory.latitude],
-        zoom: 10,
+        zoom: 14,
         essential: true,
-        duration: 2000
+        duration: 1500
       });
     }
   }, [focusMemory]);
