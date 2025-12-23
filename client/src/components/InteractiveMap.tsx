@@ -162,18 +162,14 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
       } else if (hasFood) {
         el.style.width = '44px';
         el.style.height = '44px';
-        el.innerHTML = `
-          <svg viewBox="0 0 40 60" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
-            <g stroke="white" stroke-width="2">
-              <path d="M14 5v18c0 3 2 5 5 5v25" fill="#FF327F" stroke-linejoin="round"/>
-              <path d="M10 5v8c0 2 1.5 3.5 4 4v8" fill="none"/>
-              <path d="M14 5v8" fill="none"/>
-              <path d="M18 5v8c0 2-1.5 3.5-4 4" fill="none"/>
-              <path d="M26 5c0 8 5 10 5 16 0 3-2 5-5 5s-5-2-5-5c0-6 5-8 5-16z" fill="#FF327F" stroke-linejoin="round"/>
-              <path d="M26 26v27" fill="none" stroke-linecap="round"/>
-            </g>
-          </svg>
-        `;
+        const img = document.createElement('img');
+        img.src = new URL('@assets/IMG_0803_1766481326643.jpeg', import.meta.url).href;
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'contain';
+        img.style.filter = 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
+        img.style.mixBlendMode = 'multiply';
+        el.appendChild(img);
       } else {
         el.style.width = '32px';
         el.style.height = '40px';
