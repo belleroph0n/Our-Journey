@@ -1,7 +1,7 @@
 # Our Journey - Interactive Memory Map
 
-**Version:** 2.2.0  
-**Release Date:** 22 December 2025 (NZDT)  
+**Version:** 2.3.0  
+**Release Date:** 23 December 2025 (NZDT)  
 **Custom Domain:** alexndan.com
 
 ## Overview
@@ -115,8 +115,17 @@ Before publishing the app, verify the following:
 - [ ] RELEASE_NOTES.md updated with comprehensive feature and version notes
 - [ ] Any breaking changes or important updates noted
 
+### Photo Carousel
+- [ ] **Desktop (mouse)**: Clicking < and > arrows navigates one photo at a time
+- [ ] **Mobile (touch)**: Tapping < and > arrows navigates one photo at a time (no double-jump)
+- [ ] **Mobile (swipe)**: Swiping left/right on the photo navigates correctly
+- [ ] Wrapping navigation works: from first photo, < goes to last; from last photo, > goes to first
+- [ ] Photo counter displays correctly (e.g., "3 / 10")
+- [ ] All photos in a memory appear in both the polaroid grid and the carousel
+
 ### Functionality
 - [ ] Authentication works with ACCESS_CODE
 - [ ] Google Drive connection established (check logs for "Google Drive connected successfully")
 - [ ] All view states work correctly (auth, landing, map, food-menu, filtered, detail)
 - [ ] Back navigation works correctly from all views
+- [ ] Travel memory back navigation returns to map location (not homepage)

@@ -1,5 +1,38 @@
 # Our Journey - Release Notes
 
+## Version 2.3.0 - Photo Carousel Feature
+**Release Date:** 23 December 2025 (NZDT)
+
+---
+
+### New Features
+
+#### Photo Carousel Navigation
+- **Full-Screen Viewer**: Click any photo in a memory to view it full-size in a lightbox
+- **Navigation Arrows**: < and > buttons positioned on the left and right sides of the image, vertically centred
+- **Wrapping Navigation**: From the first photo, < goes to the last; from the last photo, > goes to the first
+- **Photo Counter**: Shows current position (e.g., "3 / 10") at the bottom of the lightbox
+- **Swipe Gestures**: Swipe left to go forward, swipe right to go backward on touch devices
+
+### Bug Fixes
+
+#### Mobile Touch Handling
+- **Fixed Double-Jump**: Resolved issue where tapping < or > arrows on mobile would skip photos
+- **Event Isolation**: Touch events on navigation buttons no longer trigger the swipe handler
+- **Consistent Behaviour**: Arrow taps now work identically on desktop and mobile devices
+
+#### Travel Memory Navigation
+- **Map Return**: Back button from travel memories now returns to the map at the memory's location
+- **No Popup Card**: Returns directly to map view without showing the memory card overlay
+
+### Documentation
+- **Pre-Publishing Checklist**: Added Photo Carousel testing section with device-specific test cases
+- Covers desktop mouse clicks, mobile touch taps, swipe gestures, and wrapping navigation
+
+---
+
+---
+
 ## Version 2.2.0 - UX Improvements & Visual Refinements
 **Release Date:** 22 December 2025 (NZDT)
 
