@@ -1,6 +1,6 @@
 # Our Journey - Interactive Memory Map
 
-**Version:** 2.4.0  
+**Version:** 2.3.0  
 **Release Date:** 23 December 2025 (NZDT)  
 **Custom Domain:** alexndan.com
 
@@ -134,9 +134,17 @@ Before publishing the app, verify the following:
 - [ ] Clicking outside the popup closes it
 - [ ] Back button from memory detail returns to map without popup
 
+### Memory Toggle Badge
+- [ ] Pink badge shows travel memories only with correct count
+- [ ] Blue badge shows all memories with correct count
+- [ ] Clicking badge toggles between pink and blue states
+- [ ] Custom markers display for each category (hearts for family, notes for music)
+- [ ] Toggle persists when navigating back from memory detail
+
 ### Functionality
 - [ ] Authentication works with ACCESS_CODE
 - [ ] Google Drive connection established (check logs for "Google Drive connected successfully")
 - [ ] All view states work correctly (auth, landing, map, food-menu, filtered, detail)
 - [ ] Back navigation works correctly from all views
 - [ ] Travel memory back navigation returns to map location (not homepage)
+- [ ] Category cards display in correct order: Events, Family and friends, Food, Music, Surprise Me, Travel

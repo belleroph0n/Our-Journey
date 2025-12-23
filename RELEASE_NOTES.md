@@ -1,11 +1,17 @@
 # Our Journey - Release Notes
 
-## Version 2.4.0 - Multi-Memory Location Popup
+## Version 2.3.0 - Map Enhancements & Photo Carousel
 **Release Date:** 23 December 2025 (NZDT)
 
 ---
 
 ### New Features
+
+#### Toggleable Memory Filter
+- **Map Badge Toggle**: Clickable badge in bottom-left of map toggles between travel-only and all memories
+- **Pink State**: Shows travel memories only with count (e.g., "12 travel memories to explore")
+- **Blue State**: Shows all memories with category-specific markers (e.g., "45 memories to explore")
+- **Custom Category Markers**: Hearts for family/friends, musical notes for music, pins for travel
 
 #### Multi-Memory Location Support
 - **Grouped Markers**: Memories at the same coordinates now display as a single marker with a count badge
@@ -16,23 +22,27 @@
 - **Dismiss Options**: Close via X button or tap/click outside the popup
 - **Clean Navigation**: Back button returns to map without the popup displayed
 
----
-
----
-
-## Version 2.3.0 - Photo Carousel Feature
-**Release Date:** 23 December 2025 (NZDT)
-
----
-
-### New Features
-
 #### Photo Carousel Navigation
 - **Full-Screen Viewer**: Click any photo in a memory to view it full-size in a lightbox
 - **Navigation Arrows**: < and > buttons positioned on the left and right sides of the image, vertically centred
 - **Wrapping Navigation**: From the first photo, < goes to the last; from the last photo, > goes to the first
 - **Photo Counter**: Shows current position (e.g., "3 / 10") at the bottom of the lightbox
 - **Swipe Gestures**: Swipe left to go forward, swipe right to go backward on touch devices
+
+### Improvements
+
+#### Category Card Reordering
+- **New Order**: Categories on landing page now display in this order:
+  1. Events
+  2. Family and friends
+  3. Food
+  4. Music
+  5. Surprise Me
+  6. Travel
+
+#### Travel Memory Navigation
+- **Map Return**: Back button from travel memories now returns to the map at the memory's location
+- **Zoom Preservation**: Map returns to ~1km scale (zoom level 14) when navigating back
 
 ### Bug Fixes
 
@@ -41,12 +51,8 @@
 - **Event Isolation**: Touch events on navigation buttons no longer trigger the swipe handler
 - **Consistent Behaviour**: Arrow taps now work identically on desktop and mobile devices
 
-#### Travel Memory Navigation
-- **Map Return**: Back button from travel memories now returns to the map at the memory's location
-- **No Popup Card**: Returns directly to map view without showing the memory card overlay
-
 ### Documentation
-- **Pre-Publishing Checklist**: Added Photo Carousel testing section with device-specific test cases
+- **Pre-Publishing Checklist**: Added Photo Carousel and Multi-Memory Location testing sections
 - Covers desktop mouse clicks, mobile touch taps, swipe gestures, and wrapping navigation
 
 ---
