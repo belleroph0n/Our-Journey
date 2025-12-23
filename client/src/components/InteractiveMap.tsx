@@ -46,6 +46,48 @@ function getCategoryLabel(categories: string[] | undefined): string {
   return categories[0].charAt(0).toUpperCase() + categories[0].slice(1);
 }
 
+function getMarkerSvg(categories: string[]): string {
+  const lowerCategories = categories.map(c => c.toLowerCase());
+  
+  if (lowerCategories.includes('family') || lowerCategories.includes('friends')) {
+    return `
+      <svg viewBox="0 0 24 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24s12-15 12-24c0-6.627-5.373-12-12-12z" fill="#FF327F"/>
+        <path d="M12 6.5c-0.5-0.5-1.3-0.8-2-0.8-1.5 0-2.7 1.2-2.7 2.7 0 0.6 0.2 1.1 0.5 1.6L12 14.5l4.2-4.5c0.3-0.5 0.5-1 0.5-1.6 0-1.5-1.2-2.7-2.7-2.7-0.7 0-1.5 0.3-2 0.8z" fill="white"/>
+      </svg>
+    `;
+  }
+  
+  if (lowerCategories.includes('music')) {
+    return `
+      <svg viewBox="0 0 24 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24s12-15 12-24c0-6.627-5.373-12-12-12z" fill="#FF327F"/>
+        <path d="M14.5 6v7.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5 1.1-2.5 2.5-2.5c0.4 0 0.8 0.1 1.2 0.3V7.5l-4 1V15c0 1.4-1.1 2.5-2.5 2.5" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <circle cx="12" cy="13.5" r="2" fill="white"/>
+      </svg>
+    `;
+  }
+  
+  if (lowerCategories.includes('food')) {
+    return `
+      <svg viewBox="0 0 24 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24s12-15 12-24c0-6.627-5.373-12-12-12z" fill="#FF327F"/>
+        <path d="M8 6v4c0 1.1 0.9 2 2 2v6" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M8 8h2M8 10h2" stroke="white" stroke-width="1" stroke-linecap="round"/>
+        <path d="M14 6c0 2 2 3 2 5 0 1.1-0.9 2-2 2s-2-0.9-2-2c0-2 2-3 2-5z" fill="white"/>
+        <path d="M14 13v5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    `;
+  }
+  
+  return `
+    <svg viewBox="0 0 24 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
+      <path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24s12-15 12-24c0-6.627-5.373-12-12-12z" fill="#FF327F"/>
+      <circle cx="12" cy="12" r="5" fill="white"/>
+    </svg>
+  `;
+}
+
 export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, onBack, focusMemory }: InteractiveMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -102,7 +144,8 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
     const locationGroups = groupMemoriesByLocation(memories);
 
     locationGroups.forEach((group) => {
-      const hasTravel = group.memories.some(m => m.categories?.includes('travel'));
+      const allCategories = group.memories.flatMap(m => m.categories || []);
+      const hasTravel = allCategories.some(c => c.toLowerCase() === 'travel');
       const el = document.createElement('div');
       el.className = 'memory-marker';
       el.style.cursor = 'pointer';
@@ -118,12 +161,7 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
       } else {
         el.style.width = '32px';
         el.style.height = '40px';
-        el.innerHTML = `
-          <svg viewBox="0 0 24 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
-            <path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24s12-15 12-24c0-6.627-5.373-12-12-12z" fill="#FF327F"/>
-            <circle cx="12" cy="12" r="5" fill="white"/>
-          </svg>
-        `;
+        el.innerHTML = getMarkerSvg(allCategories);
       }
 
       if (group.memories.length > 1) {
