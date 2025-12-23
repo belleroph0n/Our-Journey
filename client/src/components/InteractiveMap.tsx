@@ -189,9 +189,13 @@ export default function InteractiveMap({ memories, allMemories, onMemorySelect, 
         el.style.backgroundPosition = 'center';
         el.style.filter = 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%) drop-shadow(0 0 1px white) drop-shadow(0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
       } else if (hasFood) {
-        el.style.width = '32px';
-        el.style.height = '40px';
-        el.innerHTML = getMarkerSvg(['food']);
+        el.style.width = '44px';
+        el.style.height = '44px';
+        el.style.backgroundImage = `url("${new URL('@assets/knife_and_fork_1766526170551.png', import.meta.url).href}")`;
+        el.style.backgroundSize = 'contain';
+        el.style.backgroundRepeat = 'no-repeat';
+        el.style.backgroundPosition = 'center';
+        el.style.filter = 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1.5px white) drop-shadow(0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
       } else {
         el.style.width = '32px';
         el.style.height = '40px';
