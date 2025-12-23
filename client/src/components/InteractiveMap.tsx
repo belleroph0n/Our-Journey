@@ -72,11 +72,13 @@ function getMarkerSvg(categories: string[]): string {
   if (lowerCategories.includes('food')) {
     return `
       <svg viewBox="0 0 24 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
-        <path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24s12-15 12-24c0-6.627-5.373-12-12-12z" fill="#FF327F"/>
-        <path d="M8 6v4c0 1.1 0.9 2 2 2v6" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M8 8h2M8 10h2" stroke="white" stroke-width="1" stroke-linecap="round"/>
-        <path d="M14 6c0 2 2 3 2 5 0 1.1-0.9 2-2 2s-2-0.9-2-2c0-2 2-3 2-5z" fill="white"/>
-        <path d="M14 13v5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24s12-15 12-24c0-6.627-5.373-12-12-12z" fill="#FF327F" stroke="white" stroke-width="1"/>
+        <!-- Fork -->
+        <path d="M7 5v3.5c0 0.8 0.3 1.5 0.8 2L8 11v7" stroke="white" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+        <path d="M7 5v3M8.5 5v3M10 5v3" stroke="white" stroke-width="0.8" stroke-linecap="round"/>
+        <!-- Knife -->
+        <path d="M15 5c1.5 0 2.5 1 2.5 2.5 0 1.5-0.5 2.5-1 3l-0.5 0.5v7" stroke="white" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+        <path d="M15 5v6" stroke="white" stroke-width="0.8" stroke-linecap="round"/>
       </svg>
     `;
   }
