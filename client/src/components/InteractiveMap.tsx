@@ -146,6 +146,7 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
     locationGroups.forEach((group) => {
       const allCategories = group.memories.flatMap(m => m.categories || []);
       const hasTravel = allCategories.some(c => c.toLowerCase() === 'travel');
+      const hasFood = allCategories.some(c => c.toLowerCase() === 'food');
       const el = document.createElement('div');
       el.className = 'memory-marker';
       el.style.cursor = 'pointer';
@@ -154,6 +155,14 @@ export default function InteractiveMap({ memories, onMemorySelect, onHomeClick, 
         el.style.width = '44px';
         el.style.height = '44px';
         el.style.backgroundImage = `url("${new URL('@assets/Untitled design (1)_1763443679229.png', import.meta.url).href}")`;
+        el.style.backgroundSize = 'contain';
+        el.style.backgroundRepeat = 'no-repeat';
+        el.style.backgroundPosition = 'center';
+        el.style.filter = 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(315deg) brightness(100%) contrast(95%) drop-shadow(0 0 1px white) drop-shadow(0 0 1px white) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
+      } else if (hasFood) {
+        el.style.width = '44px';
+        el.style.height = '44px';
+        el.style.backgroundImage = `url("${new URL('@assets/IMG_0803_1766481326643.jpeg', import.meta.url).href}")`;
         el.style.backgroundSize = 'contain';
         el.style.backgroundRepeat = 'no-repeat';
         el.style.backgroundPosition = 'center';
