@@ -216,9 +216,9 @@ export default function InteractiveMap({ memories, allMemories, onMemorySelect, 
       } else if (hasFood) {
         applyImageMarkerStyles(el, foodMarkerUrl);
       } else if (hasFamily) {
-        applyImageMarkerStyles(el, familyMarkerUrl);
+        applyImageMarkerStyles(el, familyMarkerUrl, 31); // 30% smaller than default 44px
       } else if (hasMusic) {
-        applyImageMarkerStyles(el, musicMarkerUrl);
+        applyImageMarkerStyles(el, musicMarkerUrl, 22); // 50% smaller than default 44px
       } else {
         // Default SVG pin for events and other categories
         el.style.width = '32px';
