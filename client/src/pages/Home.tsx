@@ -12,6 +12,7 @@ type ViewState = 'auth' | 'landing' | 'map' | 'filtered' | 'detail' | 'food-menu
 
 export default function Home() {
   const [viewState, setViewState] = useState<ViewState>('auth');
+  const [previousViewState, setPreviousViewState] = useState<ViewState | null>(null);
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
   const [filteredMemories, setFilteredMemories] = useState<Memory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -75,6 +76,7 @@ export default function Home() {
 
   const handleMemorySelect = (memory: Memory) => {
     console.log('Memory selected:', memory.title);
+    setPreviousViewState(viewState);
     setSelectedMemory(memory);
     setViewState('detail');
   };
@@ -107,6 +109,8 @@ export default function Home() {
 
   const handleBackToMap = () => {
     console.log('Navigating back to map');
+    setSelectedMemory(null);
+    setPreviousViewState(null);
     setViewState('map');
   };
 
@@ -187,10 +191,11 @@ export default function Home() {
 
   if (viewState === 'detail' && selectedMemory) {
     let backHandler = handleBackToLanding;
-    if (selectedCategory === 'food') {
-      backHandler = handleBackToFiltered;
-    } else if (selectedCategory === 'travel') {
+    
+    if (previousViewState === 'map') {
       backHandler = handleBackToMap;
+    } else if (selectedCategory === 'food') {
+      backHandler = handleBackToFiltered;
     } else if (selectedCategory && selectedCategory !== 'random') {
       backHandler = handleBackToFiltered;
     }
