@@ -1,5 +1,39 @@
 # Our Journey - Release Notes
 
+## Version 2.5.0 - Christmas Gift Wrapping
+**Release Date:** 24 December 2025 (NZDT)
+
+---
+
+### New Features
+
+#### Gift-Wrapped Category Tiles
+- **Christmas Day Surprise**: All category tiles appear gift-wrapped with countdown timers until their scheduled unlock time
+- **Pink & White Stripes**: Festive diagonal stripe pattern with matching white bow
+- **Live Countdown**: Timer displayed on the bow shows hours:minutes:seconds until unlock
+- **Unwrap Animation**: Categories flip open with a smooth animation when their time arrives
+
+#### Scheduled Category Unlocks (NZT 25/12/2025)
+- **Events**: Unlocks at 09:00 NZT
+- **Family and friends**: Unlocks at 11:00 NZT
+- **Food**: Unlocks at 13:00 NZT
+- **Music**: Unlocks at 15:00 NZT
+- **Surprise Me**: Unlocks at 17:00 NZT
+- **Travel**: Unlocks at 19:00 NZT
+
+#### Permanent Unlock
+- Once a category's unlock time passes, it remains permanently unwrapped
+- No need to re-enter or refresh to see unlocked categories
+
+### Technical Improvements
+
+#### Timezone Handling
+- **NZT Calculation**: Uses UTC+13 offset (NZDT daylight saving) for accurate Christmas Day timing
+- **UTC Conversion**: Converts NZT times to UTC timestamps for reliable countdown calculation
+- **Day Rollover**: Handles midnight boundary correctly for early morning unlocks
+
+---
+
 ## Version 2.4.0 - Custom Image Markers
 **Release Date:** 24 December 2025 (NZDT)
 

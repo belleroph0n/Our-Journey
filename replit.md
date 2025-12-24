@@ -1,6 +1,6 @@
 # Our Journey - Interactive Memory Map
 
-**Version:** 2.4.0  
+**Version:** 2.5.0  
 **Release Date:** 24 December 2025 (NZDT)  
 **Custom Domain:** alexndan.com
 
@@ -140,6 +140,14 @@ Before publishing the app, verify the following:
 - [ ] Clicking badge toggles between pink and blue states
 - [ ] Custom markers display for each category (hearts for family, notes for music)
 - [ ] Toggle persists when navigating back from memory detail
+
+### Gift Wrapping (Christmas Day 2025)
+- [ ] All category tiles show gift-wrapped with countdown timer before unlock time
+- [ ] Countdown displays correctly in hours:minutes:seconds format
+- [ ] Each category unlocks at the correct NZT time (Events 09:00, Family 11:00, Food 13:00, Music 15:00, Surprise 17:00, Travel 19:00)
+- [ ] Unwrap animation plays smoothly when countdown reaches zero
+- [ ] Categories remain permanently unwrapped after their unlock time
+- [ ] Gift wrap appearance: pink/white diagonal stripes with white bow
 
 ### Functionality
 - [ ] Authentication works with ACCESS_CODE
