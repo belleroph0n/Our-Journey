@@ -30,22 +30,39 @@ function isChristmasDayNZ(): boolean {
   return day === '25' && month === '12' && year === '2025';
 }
 
-// Countdown delays for each category (in seconds) - for testing
-const CATEGORY_UNLOCK_DELAYS: Record<Category, number> = {
-  event: 30,
-  family: 60,
-  food: 90,
-  music: 120,
-  random: 150,
-  travel: 180,
+// Christmas Day 2025 unlock times in NZT (Pacific/Auckland timezone)
+// Format: { hour, minute } in 24-hour NZT time on 25/12/2025
+const CATEGORY_UNLOCK_TIMES: Record<Category, { hour: number; minute: number }> = {
+  event: { hour: 9, minute: 0 },      // 09:00 NZT
+  family: { hour: 11, minute: 0 },    // 11:00 NZT
+  food: { hour: 13, minute: 0 },      // 13:00 NZT
+  music: { hour: 15, minute: 0 },     // 15:00 NZT
+  random: { hour: 17, minute: 0 },    // 17:00 NZT (Surprise Me)
+  travel: { hour: 19, minute: 0 },    // 19:00 NZT
 };
 
-// Store the app start time globally so it persists across re-renders
-const APP_START_TIME = Date.now();
+// Get the unlock timestamp for a category (returns milliseconds since epoch)
+function getCategoryUnlockTimestamp(categoryId: Category): number {
+  const { hour, minute } = CATEGORY_UNLOCK_TIMES[categoryId];
+  // Create a date string for Christmas Day 2025 at the specified NZT time
+  // NZT is UTC+13 during daylight saving (which applies on 25 Dec)
+  const nztOffsetHours = 13;
+  const utcHour = hour - nztOffsetHours;
+  // Handle day rollover if UTC hour goes negative
+  const utcDate = utcHour < 0 ? 24 : 25;
+  const adjustedUtcHour = utcHour < 0 ? utcHour + 24 : utcHour;
+  
+  return Date.UTC(2025, 11, utcDate, adjustedUtcHour, minute, 0, 0);
+}
 
 function formatCountdown(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
+  const hours = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
+  
+  if (hours > 0) {
+    return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
   if (mins > 0) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
@@ -588,9 +605,9 @@ export default function LandingPage({ memories, onCategorySelect, onRandomMemory
     return () => clearInterval(interval);
   }, []);
 
-  // Calculate seconds remaining for a category
+  // Calculate seconds remaining for a category until its NZT unlock time
   const getSecondsRemaining = useCallback((categoryId: Category): number => {
-    const unlockTime = APP_START_TIME + (CATEGORY_UNLOCK_DELAYS[categoryId] * 1000);
+    const unlockTime = getCategoryUnlockTimestamp(categoryId);
     const remaining = Math.max(0, Math.ceil((unlockTime - currentTime) / 1000));
     return remaining;
   }, [currentTime]);
