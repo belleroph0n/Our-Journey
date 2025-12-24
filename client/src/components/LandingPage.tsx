@@ -132,12 +132,6 @@ function GiftWrap({ categoryId, label, secondsRemaining, onUnwrap }: GiftWrapPro
         </div>
       </div>
       
-      {/* Category label at bottom */}
-      <div className="absolute bottom-2 left-0 right-0 text-center">
-        <span className="text-white font-handwritten text-sm sm:text-base drop-shadow-lg px-2 py-1 bg-black/20 rounded">
-          {label}
-        </span>
-      </div>
     </motion.div>
   );
 }
