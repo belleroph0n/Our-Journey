@@ -13,6 +13,22 @@ interface LandingPageProps {
   memories: Memory[];
   onCategorySelect: (category: string, filteredMemories: Memory[]) => void;
   onRandomMemory: (memory: Memory) => void;
+  onChristmasMessage?: () => void;
+}
+
+function isChristmasDayNZ(): boolean {
+  const now = new Date();
+  const nzFormatter = new Intl.DateTimeFormat('en-NZ', {
+    timeZone: 'Pacific/Auckland',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  const parts = nzFormatter.formatToParts(now);
+  const day = parts.find(p => p.type === 'day')?.value;
+  const month = parts.find(p => p.type === 'month')?.value;
+  const year = parts.find(p => p.type === 'year')?.value;
+  return day === '25' && month === '12' && year === '2025';
 }
 
 type Category = 'music' | 'family' | 'travel' | 'food' | 'event' | 'random';
@@ -463,7 +479,7 @@ function DiceIcon({ className }: { className?: string }) {
   );
 }
 
-export default function LandingPage({ memories, onCategorySelect, onRandomMemory }: LandingPageProps) {
+export default function LandingPage({ memories, onCategorySelect, onRandomMemory, onChristmasMessage }: LandingPageProps) {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -506,14 +522,27 @@ export default function LandingPage({ memories, onCategorySelect, onRandomMemory
         )}
       </AnimatePresence>
 
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-4xl sm:text-5xl md:text-6xl font-handwritten mb-6 sm:mb-8 text-center"
-        style={{ color: '#FF327F' }}
-      >
-        Our Journey
-      </motion.h1>
+      {isChristmasDayNZ() && onChristmasMessage ? (
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          onClick={onChristmasMessage}
+          className="text-4xl sm:text-5xl md:text-6xl font-handwritten mb-6 sm:mb-8 text-center cursor-pointer hover:scale-105 transition-transform"
+          style={{ color: '#FF327F' }}
+          data-testid="title-christmas-link"
+        >
+          Our Journey
+        </motion.h1>
+      ) : (
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-4xl sm:text-5xl md:text-6xl font-handwritten mb-6 sm:mb-8 text-center"
+          style={{ color: '#FF327F' }}
+        >
+          Our Journey
+        </motion.h1>
+      )}
 
       <motion.p
         initial={{ opacity: 0 }}

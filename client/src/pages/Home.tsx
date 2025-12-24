@@ -141,11 +141,20 @@ export default function Home() {
       );
     }
 
+    const handleChristmasMessage = () => {
+      const christmasMemory = memories.find(m => m.id === '84');
+      if (christmasMemory) {
+        setSelectedMemory(christmasMemory);
+        setViewState('detail');
+      }
+    };
+
     return (
       <LandingPage
         memories={memories}
         onCategorySelect={handleCategorySelect}
         onRandomMemory={handleRandomMemory}
+        onChristmasMessage={handleChristmasMessage}
       />
     );
   }
