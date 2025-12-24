@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Memory } from '@shared/schema';
 
@@ -28,6 +28,101 @@ function isChristmasDayNZ(): boolean {
   const month = parts.find(p => p.type === 'month')?.value;
   const year = parts.find(p => p.type === 'year')?.value;
   return day === '25' && month === '12' && year === '2025';
+}
+
+// Countdown delays for each category (in seconds) - for testing
+const CATEGORY_UNLOCK_DELAYS: Record<Category, number> = {
+  event: 30,
+  family: 60,
+  food: 90,
+  music: 120,
+  random: 150,
+  travel: 180,
+};
+
+// Store the app start time globally so it persists across re-renders
+const APP_START_TIME = Date.now();
+
+function formatCountdown(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  if (mins > 0) {
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+  return `${secs}`;
+}
+
+interface GiftWrapProps {
+  categoryId: Category;
+  label: string;
+  secondsRemaining: number;
+  onUnwrap: () => void;
+}
+
+function GiftWrap({ categoryId, label, secondsRemaining, onUnwrap }: GiftWrapProps) {
+  useEffect(() => {
+    if (secondsRemaining <= 0) {
+      onUnwrap();
+    }
+  }, [secondsRemaining, onUnwrap]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ 
+        scale: 1.1, 
+        opacity: 0,
+        rotateY: 180,
+        transition: { duration: 0.5 }
+      }}
+      className="aspect-square rounded-2xl overflow-hidden shadow-lg relative"
+      data-testid={`gift-wrap-${categoryId}`}
+    >
+      {/* Gift wrap background - pink and white stripes */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: `repeating-linear-gradient(
+            45deg,
+            #FF327F,
+            #FF327F 10px,
+            #FFB6C1 10px,
+            #FFB6C1 20px
+          )`
+        }}
+      />
+      
+      {/* White ribbon horizontal */}
+      <div className="absolute top-1/2 left-0 right-0 h-4 bg-white transform -translate-y-1/2 shadow-sm" />
+      
+      {/* White ribbon vertical */}
+      <div className="absolute left-1/2 top-0 bottom-0 w-4 bg-white transform -translate-x-1/2 shadow-sm" />
+      
+      {/* Bow in center */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+        <div className="relative w-16 h-16 sm:w-20 sm:h-20">
+          {/* Left loop */}
+          <div className="absolute top-2 left-0 w-6 h-8 sm:w-8 sm:h-10 bg-white rounded-full transform -rotate-45 border-2 border-pink-200" />
+          {/* Right loop */}
+          <div className="absolute top-2 right-0 w-6 h-8 sm:w-8 sm:h-10 bg-white rounded-full transform rotate-45 border-2 border-pink-200" />
+          {/* Center knot */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 sm:w-8 sm:h-8 bg-white rounded-full border-2 border-pink-200 flex items-center justify-center">
+            <span className="text-xs sm:text-sm font-bold text-[#FF327F]">
+              {formatCountdown(secondsRemaining)}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      {/* Category label at bottom */}
+      <div className="absolute bottom-2 left-0 right-0 text-center">
+        <span className="text-white font-handwritten text-sm sm:text-base drop-shadow-lg px-2 py-1 bg-black/20 rounded">
+          {label}
+        </span>
+      </div>
+    </motion.div>
+  );
 }
 
 type Category = 'music' | 'family' | 'travel' | 'food' | 'event' | 'random';
@@ -482,6 +577,34 @@ export default function LandingPage({ memories, onCategorySelect, onRandomMemory
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showChristmasVideo, setShowChristmasVideo] = useState(false);
+  const [unwrappedCategories, setUnwrappedCategories] = useState<Set<Category>>(new Set());
+  const [currentTime, setCurrentTime] = useState(Date.now());
+
+  // Update current time every second for countdown
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Calculate seconds remaining for a category
+  const getSecondsRemaining = useCallback((categoryId: Category): number => {
+    const unlockTime = APP_START_TIME + (CATEGORY_UNLOCK_DELAYS[categoryId] * 1000);
+    const remaining = Math.max(0, Math.ceil((unlockTime - currentTime) / 1000));
+    return remaining;
+  }, [currentTime]);
+
+  // Check if a category is wrapped (has time remaining and not manually unwrapped)
+  const isCategoryWrapped = useCallback((categoryId: Category): boolean => {
+    if (unwrappedCategories.has(categoryId)) return false;
+    return getSecondsRemaining(categoryId) > 0;
+  }, [unwrappedCategories, getSecondsRemaining]);
+
+  // Handle unwrapping a category
+  const handleUnwrap = useCallback((categoryId: Category) => {
+    setUnwrappedCategories(prev => new Set([...prev, categoryId]));
+  }, []);
 
   const handleCategoryClick = (category: CategoryConfig) => {
     setSelectedCategory(category.id);
@@ -600,26 +723,38 @@ export default function LandingPage({ memories, onCategorySelect, onRandomMemory
       <div className="w-full max-w-2xl px-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
           {categories.map((category, index) => (
-            <motion.button
-              key={category.id}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.08 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => handleCategoryClick(category)}
-              disabled={isLoading}
-              className="aspect-square rounded-2xl bg-card border-2 border-border shadow-lg flex flex-col items-center justify-center gap-2 sm:gap-3 hover-elevate cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed p-4"
-              data-testid={`button-category-${category.id}`}
-            >
-              <img
-                src={category.image}
-                alt={category.label}
-                className="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain"
-                style={{ filter: 'grayscale(100%)' }}
-              />
-              <span className="text-base sm:text-lg md:text-xl font-handwritten text-foreground/80">{category.label}</span>
-            </motion.button>
+            <AnimatePresence mode="wait" key={category.id}>
+              {isCategoryWrapped(category.id) ? (
+                <GiftWrap
+                  key={`wrap-${category.id}`}
+                  categoryId={category.id}
+                  label={category.label}
+                  secondsRemaining={getSecondsRemaining(category.id)}
+                  onUnwrap={() => handleUnwrap(category.id)}
+                />
+              ) : (
+                <motion.button
+                  key={`button-${category.id}`}
+                  initial={{ opacity: 0, scale: 0.8, rotateY: -180 }}
+                  animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                  transition={{ delay: index * 0.08, type: 'spring', stiffness: 200 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleCategoryClick(category)}
+                  disabled={isLoading}
+                  className="aspect-square rounded-2xl bg-card border-2 border-border shadow-lg flex flex-col items-center justify-center gap-2 sm:gap-3 hover-elevate cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed p-4"
+                  data-testid={`button-category-${category.id}`}
+                >
+                  <img
+                    src={category.image}
+                    alt={category.label}
+                    className="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain"
+                    style={{ filter: 'grayscale(100%)' }}
+                  />
+                  <span className="text-base sm:text-lg md:text-xl font-handwritten text-foreground/80">{category.label}</span>
+                </motion.button>
+              )}
+            </AnimatePresence>
           ))}
         </div>
       </div>
