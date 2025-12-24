@@ -13,7 +13,6 @@ interface LandingPageProps {
   memories: Memory[];
   onCategorySelect: (category: string, filteredMemories: Memory[]) => void;
   onRandomMemory: (memory: Memory) => void;
-  onChristmasMessage?: () => void;
 }
 
 function isChristmasDayNZ(): boolean {
@@ -483,9 +482,10 @@ function DiceIcon({ className }: { className?: string }) {
   );
 }
 
-export default function LandingPage({ memories, onCategorySelect, onRandomMemory, onChristmasMessage }: LandingPageProps) {
+export default function LandingPage({ memories, onCategorySelect, onRandomMemory }: LandingPageProps) {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showChristmasVideo, setShowChristmasVideo] = useState(false);
 
   const handleCategoryClick = (category: CategoryConfig) => {
     setSelectedCategory(category.id);
@@ -526,11 +526,11 @@ export default function LandingPage({ memories, onCategorySelect, onRandomMemory
         )}
       </AnimatePresence>
 
-      {isChristmasDayNZ() && onChristmasMessage ? (
+      {isChristmasDayNZ() ? (
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          onClick={onChristmasMessage}
+          onClick={() => setShowChristmasVideo(true)}
           className="text-4xl sm:text-5xl md:text-6xl font-handwritten mb-6 sm:mb-8 text-center cursor-pointer hover:scale-105 transition-transform"
           style={{ color: '#FF327F' }}
           data-testid="title-christmas-link"
@@ -547,6 +547,47 @@ export default function LandingPage({ memories, onCategorySelect, onRandomMemory
           Our Journey
         </motion.h1>
       )}
+
+      {/* Christmas Video Modal */}
+      <AnimatePresence>
+        {showChristmasVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+            onClick={() => setShowChristmasVideo(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-4xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowChristmasVideo(false)}
+                className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+                data-testid="button-close-christmas-video"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+              <video
+                src="/api/media/OJ.mov"
+                controls
+                autoPlay
+                className="w-full rounded-xl shadow-2xl"
+                data-testid="video-christmas-message"
+              >
+                Your browser does not support the video tag.
+              </video>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <motion.p
         initial={{ opacity: 0 }}
