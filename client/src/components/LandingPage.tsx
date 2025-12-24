@@ -555,31 +555,33 @@ export default function LandingPage({ memories, onCategorySelect, onRandomMemory
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95"
             onClick={() => setShowChristmasVideo(false)}
           >
+            {/* Close button - fixed in top right */}
+            <button
+              onClick={() => setShowChristmasVideo(false)}
+              className="fixed top-4 right-4 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
+              data-testid="button-close-christmas-video"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+            
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-4xl"
+              className="relative w-full h-full max-w-[90vw] max-h-[80vh] sm:max-w-3xl md:max-w-4xl flex items-center justify-center p-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <button
-                onClick={() => setShowChristmasVideo(false)}
-                className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
-                data-testid="button-close-christmas-video"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
               <video
                 src="/api/media/OJ.mov"
                 controls
                 autoPlay
-                className="w-full rounded-xl shadow-2xl"
+                className="max-w-full max-h-full rounded-xl shadow-2xl object-contain"
                 data-testid="video-christmas-message"
               >
                 Your browser does not support the video tag.
