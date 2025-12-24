@@ -17,6 +17,9 @@ interface LandingPageProps {
 }
 
 function isChristmasDayNZ(): boolean {
+  // TESTING: Always return true for testing - restore time check before publishing
+  return true;
+  /*
   const now = new Date();
   const nzFormatter = new Intl.DateTimeFormat('en-NZ', {
     timeZone: 'Pacific/Auckland',
@@ -29,6 +32,7 @@ function isChristmasDayNZ(): boolean {
   const month = parts.find(p => p.type === 'month')?.value;
   const year = parts.find(p => p.type === 'year')?.value;
   return day === '25' && month === '12' && year === '2025';
+  */
 }
 
 type Category = 'music' | 'family' | 'travel' | 'food' | 'event' | 'random';
