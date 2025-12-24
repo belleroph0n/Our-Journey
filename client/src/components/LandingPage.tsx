@@ -603,7 +603,11 @@ export default function LandingPage({ memories, onCategorySelect, onRandomMemory
 
   // Handle unwrapping a category
   const handleUnwrap = useCallback((categoryId: Category) => {
-    setUnwrappedCategories(prev => new Set([...prev, categoryId]));
+    setUnwrappedCategories(prev => {
+      const newSet = new Set(prev);
+      newSet.add(categoryId);
+      return newSet;
+    });
   }, []);
 
   const handleCategoryClick = (category: CategoryConfig) => {
