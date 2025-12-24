@@ -1,5 +1,35 @@
 # Our Journey - Release Notes
 
+## Version 2.4.0 - Custom Image Markers
+**Release Date:** 24 December 2025 (NZDT)
+
+---
+
+### New Features
+
+#### Custom Image-Based Category Markers
+- **Travel**: Girl with bindle icon (pink with white outline)
+- **Food**: Knife and fork icon (pink with white outline)
+- **Family/Friends**: Heart outline icon (pink with white outline, 30% smaller)
+- **Music**: Music note icon (pink with white outline, 50% smaller)
+- **Events/Other**: Default pink pin marker
+
+#### Multi-Memory Location Markers
+- **Default Pin for Groups**: Locations with multiple memories use the standard pink pin
+- **Count Badge**: White circular badge shows number of memories at location
+- **Consistent Styling**: All markers maintain the hand-drawn aesthetic
+
+### Technical Improvements
+
+#### Code Refactoring
+- **Shared Constants**: Centralised `MARKER_FILTER` constant for consistent CSS filter styling
+- **Helper Function**: New `applyImageMarkerStyles()` function reduces code duplication
+- **Cleaner Logic**: Marker category detection uses lowercase comparison array
+
+---
+
+---
+
 ## Version 2.3.0 - Map Enhancements & Photo Carousel
 **Release Date:** 23 December 2025 (NZDT)
 
